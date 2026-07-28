@@ -389,7 +389,6 @@
         }
         loadForecast();
 
-        // Simulação de transição suave atualizando o clima a cada 15 segundos com efeito de fade
         setInterval(() => {
             const currentWeatherEl = document.getElementById('weather-current');
             currentWeatherEl.classList.add('fade-out');
@@ -403,25 +402,27 @@
             }, 500);
         }, 15000);
 
-        // 3. Configuração do Spotify para GitHub Pages
+        // 3. Configuração do Spotify ajustada para response_type=code
         const CLIENT_ID = '2aebf5cecb0544bd8dd08ed9dcea4307'; 
         const REDIRECT_URI = 'https://felppz.github.io/miniscreen-/';
         const SCOPES = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
 
         const loginLink = document.getElementById('login-link');
-        // Certifique-se de que o response_type está definido como 'token' e não 'code'
-        loginLink.href = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}&response_type=token&show_dialog=true`;
+        // Alterado para response_type=code conforme exigido pelas novas opções marcadas no painel
+        loginLink.href = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}&response_type=code&show_dialog=true`;
 
-        const hash = window.location.hash.substring(1).split('&').reduce((initial, item) => {
-            if (item) {
-                let parts = item.split('=');
-                initial[parts[0]] = decodeURIComponent(parts[1]);
-            }
-            return initial;
-        }, {});
-        window.location.hash = '';
+        // Capturar o 'code' da URL após o redirecionamento
+        const urlParams = new URLSearchParams(window.location.search);
+        const authCode = urlParams.get('code');
 
-        let accessToken = hash.access_token;
+        let accessToken = localStorage.getItem('spotify_access_token');
+
+        if (authCode && !accessToken) {
+            // Se recebemos o código de autorização, precisamos trocá-lo por um token (requer backend ou troca via requisição)
+            // Nota: Como o fluxo com 'code' exige o Client Secret para segurança, o ideal para projetos puramente estáticos no GitHub Pages 
+            // é desmarcar o Web Playback SDK / usar app simples, ou usar o fluxo de token direto.
+            console.log("Código de autorização recebido:", authCode);
+        }
 
         if (accessToken) {
             document.getElementById('login-section').style.display = 'none';
