@@ -22,7 +22,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            transition: background 1s ease;
+            transition: background 1.5s ease;
         }
 
         .dashboard {
@@ -96,6 +96,7 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 20px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
         .weather-temp {
@@ -115,16 +116,39 @@
             gap: 10px;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             padding-top: 15px;
+            transition: opacity 0.5s ease;
         }
 
         .forecast-day {
             text-align: center;
             font-size: 0.85rem;
+            animation: fadeIn 0.6s ease forwards;
         }
 
         .forecast-day i {
             margin: 8px 0;
             font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .forecast-day i:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-5px);
         }
 
         /* Spotify Card */
@@ -146,6 +170,7 @@
             border-radius: 10px;
             background: #21262d;
             object-fit: cover;
+            transition: transform 0.3s ease;
         }
 
         .track-details .title {
@@ -194,11 +219,12 @@
             color: #f0f6fc;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: color 0.2s, transform 0.2s;
         }
 
         .player-controls button:hover {
             color: #1db954;
+            transform: scale(1.1);
         }
 
         .player-controls .play-btn {
@@ -228,6 +254,12 @@
             font-weight: 600;
             font-size: 0.9rem;
             margin-top: 10px;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: scale(1.05);
+            background: #1ed760;
         }
 
         @media (max-width: 768px) {
@@ -252,13 +284,13 @@
             </div>
         </div>
 
-        <!-- Clima Kuala Lumpur -->
+        <!-- Clima Kuala Lumpur com Animações -->
         <div class="card weather-card">
             <h3><i class="fa-solid fa-cloud-sun"></i> Kuala Lumpur</h3>
-            <div class="weather-current">
-                <div class="weather-temp">32°C</div>
+            <div class="weather-current" id="weather-current">
+                <div class="weather-temp" id="weather-temp">32°C</div>
                 <div class="weather-details">
-                    <span>Parcialmente Nublado</span>
+                    <span id="weather-desc">Parcialmente Nublado</span>
                     <span>Umidade: 78%</span>
                 </div>
             </div>
@@ -303,24 +335,21 @@
             const seconds = String(now.getSeconds()).padStart(2, '0');
             document.getElementById('clock').textContent = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
 
-            // Fundo Dinâmico baseado na hora local
             const body = document.body;
             if (hours >= 5 && hours < 12) {
-                body.style.background = 'linear-gradient(135deg, #1f2430 0%, #2e2633 50%, #1a2332 100%)'; // Manhã
+                body.style.background = 'linear-gradient(135deg, #1f2430 0%, #2e2633 50%, #1a2332 100%)';
             } else if (hours >= 12 && hours < 18) {
-                body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'; // Tarde
+                body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)';
             } else if (hours >= 18 && hours < 20) {
-                body.style.background = 'linear-gradient(135deg, #18121e 0%, #221824 50%, #0d1117 100%)'; // Entardecer
+                body.style.background = 'linear-gradient(135deg, #18121e 0%, #221824 50%, #0d1117 100%)';
             } else {
-                body.style.background = 'radial-gradient(circle at 10% 20%, rgba(29, 185, 84, 0.03) 0%, transparent 40%), #07090e'; // Noite
+                body.style.background = 'radial-gradient(circle at 10% 20%, rgba(29, 185, 84, 0.03) 0%, transparent 40%), #07090e';
             }
 
-            // Data
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const dateString = now.toLocaleDateString('pt-BR', options);
             document.getElementById('date').textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
 
-            // Semana
             const startOfYear = new Date(now.getFullYear(), 0, 1);
             const pastDaysOfYear = (now - startOfYear) / 86400000;
             const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
@@ -330,34 +359,59 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 2. Previsão do Tempo (Kuala Lumpur)
+        // 2. Previsão do Tempo com Animações de Transição Suave
         const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const weatherIcons = ['fa-sun', 'fa-cloud-sun', 'fa-cloud', 'fa-cloud-rain'];
-        const forecastContainer = document.getElementById('forecast');
-        const todayIndex = new Date().getDay();
-        
-        for (let i = 1; i <= 4; i++) {
-            const nextDayIndex = (todayIndex + i) % 7;
-            const randomTemp = Math.floor(Math.random() * (34 - 29 + 1)) + 29;
-            const randomIcon = weatherIcons[Math.floor(Math.random() * weatherIcons.length)];
-            forecastContainer.innerHTML += `
-                <div class="forecast-day">
-                    <span>${daysOfWeek[nextDayIndex]}</span>
-                    <i class="fa-solid ${randomIcon}" style="color: #58a6ff;"></i>
-                    <span>${randomTemp}°C</span>
-                </div>
-            `;
-        }
+        const weatherStates = [
+            { temp: '32°C', desc: 'Ensolarado' },
+            { temp: '31°C', desc: 'Parcialmente Nublado' },
+            { temp: '29°C', desc: 'Chuva Leve' },
+            { temp: '30°C', desc: 'Nublado' }
+        ];
 
-        // 3. Configuração do Spotify para Localhost (Substitua abaixo pelo seu Client ID)
-        const CLIENT_ID = 'SEU_CLIENT_ID_DO_SPOTIFY'; 
-        const REDIRECT_URI = 'http://localhost:5500/'; // Ajustado fixo para a porta do Live Server
+        function loadForecast() {
+            const forecastContainer = document.getElementById('forecast');
+            forecastContainer.innerHTML = '';
+            const todayIndex = new Date().getDay();
+            
+            for (let i = 1; i <= 4; i++) {
+                const nextDayIndex = (todayIndex + i) % 7;
+                const randomTemp = Math.floor(Math.random() * (34 - 29 + 1)) + 29;
+                const randomIcon = weatherIcons[Math.floor(Math.random() * weatherIcons.length)];
+                forecastContainer.innerHTML += `
+                    <div class="forecast-day" style="animation-delay: ${i * 0.1}s">
+                        <span>${daysOfWeek[nextDayIndex]}</span>
+                        <i class="fa-solid ${randomIcon}" style="color: #58a6ff;"></i>
+                        <span>${randomTemp}°C</span>
+                    </div>
+                `;
+            }
+        }
+        loadForecast();
+
+        // Simulação de transição suave atualizando o clima a cada 15 segundos com efeito de fade
+        setInterval(() => {
+            const currentWeatherEl = document.getElementById('weather-current');
+            currentWeatherEl.classList.add('fade-out');
+
+            setTimeout(() => {
+                const randomState = weatherStates[Math.floor(Math.random() * weatherStates.length)];
+                document.getElementById('weather-temp').textContent = randomState.temp;
+                document.getElementById('weather-desc').textContent = randomState.desc;
+                loadForecast();
+                currentWeatherEl.classList.remove('fade-out');
+            }, 500);
+        }, 15000);
+
+        // 3. Configuração do Spotify para GitHub Pages
+        const CLIENT_ID = '2aebf5cecb0544bd8dd08ed9dcea4307'; 
+        const REDIRECT_URI = 'https://felppz.github.io/miniscreen-/';
         const SCOPES = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
 
         const loginLink = document.getElementById('login-link');
+        // Certifique-se de que o response_type está definido como 'token' e não 'code'
         loginLink.href = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}&response_type=token&show_dialog=true`;
 
-        // Capturar o Token da URL após redirecionamento
         const hash = window.location.hash.substring(1).split('&').reduce((initial, item) => {
             if (item) {
                 let parts = item.split('=');
