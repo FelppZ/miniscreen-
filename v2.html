@@ -1,0 +1,2634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Command Center - Painel Imersivo</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+
+  <style>
+    :root {
+      --bg-base: #030508;
+      --panel-bg: rgba(13, 17, 23, 0.65);
+      --panel-border: rgba(255, 255, 255, 0.07);
+      --accent-glow: rgba(56, 189, 248, 0.15);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --secondary: #a855f7;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --spotify: #1db954;
+      --music-pulse: 0.15;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 2vw;
+      overflow: hidden;
+      user-select: none;
+      transition: background 2s ease;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      width: 60vw;
+      height: 60vh;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      top: 20%;
+      left: 20%;
+      z-index: 0;
+      pointer-events: none;
+      filter: blur(60px);
+    }
+
+    /* Modo baixa iluminação: somente o fundo escurece */
+body.dimmed .weather-immersive-panel::before {
+  background: rgba(3, 5, 8, 0.65);
+  backdrop-filter: blur(8px) brightness(0.45);
+  -webkit-backdrop-filter: blur(8px) brightness(0.45);
+  transition:
+    background 1s ease,
+    backdrop-filter 1s ease,
+    -webkit-backdrop-filter 1s ease;
+}
+
+/* Mantém todo o conteúdo com brilho normal */
+body.dimmed .weather-immersive-content,
+body.dimmed .weather-immersive-location,
+body.dimmed .weather-immersive-clock,
+body.dimmed .weather-immersive-details,
+body.dimmed .weather-routine-bar,
+body.dimmed .time-section,
+body.dimmed .slider-indicators,
+body.dimmed .hud-panel {
+  opacity: 1;
+  filter: none;
+}
+
+    .time-section,
+    .slider-viewport,
+    .slider-indicators {
+      transition: opacity 0.5s ease, filter 0.5s ease;
+    }
+
+    .time-section {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 1600px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2.5vh 3.5vw;
+      background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.005) 100%);
+      margin-bottom: 24px;
+      flex-shrink: 0;
+      border-radius: 28px;
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all 0.4s ease;
+    }
+
+    .time-section.hidden {
+      opacity: 0;
+      transform: translateY(-30px);
+      pointer-events: none;
+      margin-bottom: 0;
+      padding: 0;
+      height: 0;
+      border: none;
+      overflow: hidden;
+    }
+
+    .slider-viewport {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1600px;
+      flex-grow: 1;
+      overflow: hidden;
+      border-radius: 32px;
+    }
+
+    .slider-track {
+      display: flex;
+      width: 300%;
+      height: 100%;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .slide-page {
+      width: 33.333%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 24px;
+      flex-shrink: 0;
+    }
+
+    .slider-indicators {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+    }
+
+    .indicator-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .indicator-dot.active {
+      width: 28px;
+      border-radius: 5px;
+      background: var(--primary);
+    }
+
+    .hud-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--panel-border);
+      border-radius: 28px;
+      padding: 3vh 2.5vw;
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .hud-panel::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 15%;
+      width: 70%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    }
+
+    .clock-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 2.5vw;
+    }
+
+    .routine-icons {
+      display: flex;
+      gap: 1.5vw;
+    }
+
+    .routine-icon {
+      font-size: 3rem;
+      color: var(--text-muted);
+      opacity: 0.2;
+      transform: scale(0.85);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: grayscale(100%);
+    }
+
+    .routine-icon.active {
+      opacity: 1;
+      transform: scale(1.4);
+      filter: grayscale(0%);
+    }
+
+    #icon-morning.active {
+      color: #facc15;
+      text-shadow: 0 0 30px rgba(250, 204, 21, 0.6);
+    }
+
+    #icon-gym.active {
+      color: #f87171;
+      text-shadow: 0 0 30px rgba(248, 113, 113, 0.6);
+    }
+
+    #icon-food.active {
+      color: #fb923c;
+      text-shadow: 0 0 30px rgba(251, 146, 60, 0.6);
+    }
+
+    #icon-bed.active {
+      color: #60a5fa;
+      text-shadow: 0 0 30px rgba(96, 165, 250, 0.6);
+    }
+
+    .date-meta {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .date-string {
+      font-size: clamp(1.1rem, 2vw, 1.5rem);
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .week-pill {
+      padding: 6px 16px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: var(--primary);
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .metrics-section {
+      gap: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2vh;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .weather-highlight {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+      margin-bottom: 2.5vh;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 20px;
+      padding: 2vh 1.5vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .metric-value-container {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .temp-main {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .temp-sub {
+      font-size: 0.95rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .market-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .forecast-strip {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 2vh;
+      margin-top: auto;
+    }
+
+    .forecast-item {
+      text-align: center;
+      flex: 1;
+      padding: 10px 4px;
+      background: rgba(255, 255, 255, 0.01);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    .forecast-item span {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .forecast-item i {
+      margin: 8px 0;
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .forecast-item strong {
+      font-size: 0.95rem;
+      color: #ffffff;
+    }
+
+    .weather-immersive-panel {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 5vh 4vw;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      border-color: rgba(255, 255, 255, 0.15);
+      transition: background-image 1.5s ease, background-color 1.5s ease;
+      box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.6);
+    }
+
+    .weather-immersive-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 5, 8, 0.65);
+  backdrop-filter: blur(8px) brightness(1);
+  -webkit-backdrop-filter: blur(8px) brightness(1);
+  z-index: 1;
+  transition:
+    background 1s ease,
+    backdrop-filter 1s ease,
+    -webkit-backdrop-filter 1s ease;
+}
+
+    .weather-immersive-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .weather-immersive-location {
+      font-size: clamp(1.2rem, 2vw, 1.8rem);
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1.5vh;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    }
+
+    .weather-immersive-clock {
+      font-size: clamp(5rem, 13vw, 12rem);
+      font-weight: 900;
+      letter-spacing: -4px;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      margin-bottom: 2vh;
+      text-shadow:
+        0 0 40px rgba(0, 0, 0, 0.8),
+        0 0 80px rgba(56, 189, 248, 0.3);
+      transition: text-shadow 0.5s ease, transform 0.5s ease;
+    }
+
+    .weather-immersive-details {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13, 17, 23, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 18px 36px;
+      border-radius: 50px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      margin-bottom: 3vh;
+    }
+
+    .weather-immersive-temp {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .weather-immersive-desc {
+      font-size: 1.2rem;
+      color: var(--primary);
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .weather-routine-bar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: 25px;
+      background: rgba(13, 17, 23, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 28px;
+      border-radius: 30px;
+      backdrop-filter: blur(12px);
+    }
+
+    .minimal-routine-icon {
+      font-size: 1.3rem;
+      color: var(--text-muted);
+      opacity: 0.3;
+      transition: all 0.5s ease;
+      filter: grayscale(100%);
+    }
+
+    .minimal-routine-icon.active {
+      opacity: 1;
+      transform: scale(1.25);
+      filter: grayscale(0%);
+    }
+
+    #min-icon-morning.active {
+      color: #facc15;
+      text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);
+    }
+
+    #min-icon-gym.active {
+      color: #f87171;
+      text-shadow: 0 0 15px rgba(248, 113, 113, 0.6);
+    }
+
+    #min-icon-food.active {
+      color: #fb923c;
+      text-shadow: 0 0 15px rgba(251, 146, 60, 0.6);
+    }
+
+    #min-icon-bed.active {
+      color: #60a5fa;
+      text-shadow: 0 0 15px rgba(96, 165, 250, 0.6);
+    }
+
+    .feed-section {
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .mirror-btn,
+    .spotify-open-btn {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .spotify-open-btn {
+      color: var(--spotify);
+      border-color: rgba(29, 185, 84, 0.35);
+      background: rgba(29, 185, 84, 0.08);
+    }
+
+    .mirror-btn:hover,
+    .spotify-open-btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--primary);
+    }
+
+    .spotify-open-btn:hover {
+      background: rgba(29, 185, 84, 0.16);
+      border-color: var(--spotify);
+    }
+
+    .music-player-card {
+      background:
+        radial-gradient(circle at top left, rgba(29, 185, 84, 0.13), transparent 42%),
+        linear-gradient(145deg, rgba(168, 85, 247, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      border-radius: 30px;
+      padding: 4.2vh 3vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 30px;
+      flex: 1;
+      min-height: 430px;
+      box-shadow: 0 10px 30px rgba(168, 85, 247, 0.1);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.5s ease;
+    }
+
+    .music-info-row,
+    .music-progress-container,
+    .music-controls,
+    .music-status-row {
+      position: relative;
+      z-index: 1;
+    }
+
+    .music-info-row {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .album-art {
+      width: 128px;
+      height: 128px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, var(--spotify), var(--secondary));
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #fff;
+      box-shadow:
+        0 18px 50px rgba(29, 185, 84, 0.35),
+        0 0 40px rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+      animation: pulseArt 4s infinite alternate;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .album-art.has-cover {
+      box-shadow:
+        0 22px 60px rgba(0, 0, 0, 0.6),
+        0 0 42px rgba(255, 255, 255, 0.14),
+        0 0 36px rgba(29, 185, 84, 0.25);
+    }
+
+    .album-art.has-cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.38)),
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.16), transparent 45%);
+      pointer-events: none;
+    }
+
+    .album-art.has-cover i {
+      display: none;
+    }
+
+    .album-art.loading i {
+      animation: coverSearching 1.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes coverSearching {
+      from {
+        opacity: 0.35;
+        transform: scale(0.92);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+    }
+
+    @keyframes pulseArt {
+      0% {
+        transform: scale(1);
+        box-shadow:
+          0 18px 50px rgba(29, 185, 84, 0.35),
+          0 0 40px rgba(255, 255, 255, 0.08);
+      }
+
+      100% {
+        transform: scale(1.035);
+        box-shadow:
+          0 22px 60px rgba(56, 189, 248, 0.35),
+          0 0 46px rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .music-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .music-title {
+      font-size: clamp(1.75rem, 2.8vw, 2.45rem);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.6px;
+      line-height: 1.12;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .music-artist {
+      font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .music-status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .music-status-row > span:last-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .media-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 8px 15px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.035);
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+
+    .media-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+    }
+
+    .media-dot.online {
+      background: var(--spotify);
+      box-shadow: 0 0 12px rgba(29, 185, 84, 0.8);
+    }
+
+    .music-progress-container {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .music-progress-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.11);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        inset 0 0 8px rgba(255, 255, 255, 0.05),
+        0 0 18px rgba(255, 255, 255, 0.05);
+    }
+
+    .music-progress-bar.synced {
+      box-shadow:
+        0 0 18px rgba(255, 255, 255, 0.18),
+        0 0 34px rgba(255, 255, 255, 0.08),
+        inset 0 0 8px rgba(255, 255, 255, 0.08);
+    }
+
+    .music-progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.72),
+        #ffffff,
+        rgba(255, 255, 255, 0.88)
+      );
+      box-shadow:
+        0 0 12px rgba(255, 255, 255, 0.75),
+        0 0 26px rgba(255, 255, 255, 0.35),
+        0 0 46px rgba(255, 255, 255, 0.12);
+      transition: width 0.12s linear;
+    }
+
+    .music-progress-fill.syncing {
+      animation: whiteProgressGlow 1.8s ease-in-out infinite alternate;
+    }
+
+    .music-progress-bar.indeterminate .music-progress-fill {
+      width: 35% !important;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        #ffffff,
+        transparent
+      );
+      box-shadow:
+        0 0 18px rgba(255, 255, 255, 0.8),
+        0 0 38px rgba(255, 255, 255, 0.28);
+      animation: indeterminateProgress 1.35s ease-in-out infinite;
+    }
+
+    @keyframes whiteProgressGlow {
+      from {
+        filter: brightness(1);
+        box-shadow:
+          0 0 10px rgba(255, 255, 255, 0.55),
+          0 0 22px rgba(255, 255, 255, 0.25);
+      }
+
+      to {
+        filter: brightness(1.22);
+        box-shadow:
+          0 0 16px rgba(255, 255, 255, 0.95),
+          0 0 34px rgba(255, 255, 255, 0.42),
+          0 0 56px rgba(255, 255, 255, 0.16);
+      }
+    }
+
+    @keyframes indeterminateProgress {
+      0% {
+        transform: translateX(-110%);
+      }
+
+      100% {
+        transform: translateX(310%);
+      }
+    }
+
+    .music-times {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.58);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .music-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 44px;
+    }
+
+    .music-btn {
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .music-btn:hover {
+      color: #ffffff;
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.28),
+        0 0 24px rgba(255, 255, 255, 0.12);
+    }
+
+    /* BOTÃO PLAY/PAUSE AUMENTADO */
+    .music-btn-play {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      border: none;
+      background: #ffffff;
+      color: #030508;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.45rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow:
+        0 12px 38px rgba(255, 255, 255, 0.32),
+        0 0 42px rgba(255, 255, 255, 0.2),
+        0 0 40px rgba(29, 185, 84, 0.25);
+    }
+
+    .music-btn-play:hover {
+      transform: scale(1.1);
+      background: #ffffff;
+      color: #030508;
+      box-shadow:
+        0 16px 48px rgba(255, 255, 255, 0.48),
+        0 0 60px rgba(255, 255, 255, 0.28),
+        0 0 50px rgba(29, 185, 84, 0.35);
+    }
+
+    .mirror-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 5, 8, 0.95);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .mirror-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mirror-video {
+      width: 100%;
+      height: calc(100% - 50px);
+      object-fit: cover;
+      border-radius: 14px;
+      transform: scaleX(-1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mirror-close {
+      margin-top: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 6px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .mirror-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .esp32-controls-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      flex-grow: 1;
+      align-content: center;
+    }
+
+    .control-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 22px;
+      padding: 26px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      min-height: 155px;
+    }
+
+    .control-card.active {
+      border-color: rgba(56, 189, 248, 0.5);
+      background: rgba(56, 189, 248, 0.07);
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.1);
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .control-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 76px;
+      height: 42px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-switch {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.12);
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 42px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .slider-switch::before {
+      position: absolute;
+      content: "";
+      height: 32px;
+      width: 32px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    input:checked + .slider-switch {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    input:checked + .slider-switch::before {
+      transform: translateX(34px);
+    }
+
+    .control-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding-top: 14px;
+    }
+
+    .temp-adjuster {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .temp-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.25rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .temp-btn:active {
+      transform: scale(0.92);
+    }
+
+    .temp-btn:hover {
+      background: rgba(56, 189, 248, 0.3);
+      border-color: var(--primary);
+    }
+
+    .esp32-status {
+      font-size: 0.85rem;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, 0.12);
+      padding: 6px 14px;
+      border-radius: 20px;
+      width: fit-content;
+      font-weight: 600;
+    }
+
+    .fullscreen-hint {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.25);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      body {
+        height: auto;
+        overflow: auto;
+        padding: 15px;
+      }
+
+      .slider-viewport {
+        height: auto;
+        overflow: visible;
+      }
+
+      .slider-track {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .slide-page {
+        width: 100%;
+        grid-template-columns: 1fr;
+      }
+
+      .slider-indicators {
+        display: none;
+      }
+      .music-player-card {
+        min-height: auto;
+        padding: 30px 24px;
+        gap: 24px;
+      }
+
+      .music-info-row {
+        gap: 22px;
+      }
+
+      .album-art {
+        width: 104px;
+        height: 104px;
+        border-radius: 24px;
+        font-size: 2.4rem;
+      }
+
+      .music-title {
+        font-size: 1.55rem;
+      }
+
+      .music-artist {
+        font-size: 1rem;
+      }
+
+      .music-progress-bar {
+        height: 9px;
+      }
+
+      .music-btn {
+        width: 56px;
+        height: 56px;
+        font-size: 1.45rem;
+      }
+
+      .music-btn-play {
+        width: 86px;
+        height: 86px;
+        font-size: 1.35rem;
+      }
+
+      .music-controls {
+        gap: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="time-section" id="top-time-section">
+    <div class="clock-wrapper">
+      <div class="routine-icons">
+        <i class="fa-solid fa-sun routine-icon" id="icon-morning" title="Manhã"></i>
+        <i class="fa-solid fa-dumbbell routine-icon" id="icon-gym" title="Academia"></i>
+      </div>
+
+      <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">
+        Rotinas
+      </div>
+
+      <div class="routine-icons">
+        <i class="fa-solid fa-utensils routine-icon" id="icon-food" title="Comida"></i>
+        <i class="fa-solid fa-bed routine-icon" id="icon-bed" title="Cama"></i>
+      </div>
+    </div>
+
+    <div class="date-meta">
+      <div class="date-string" id="date">Sincronizando...</div>
+      <div class="week-pill" id="week-number">Semana --</div>
+    </div>
+  </div>
+
+  <div class="slider-viewport" id="slider-viewport">
+    <div class="slider-track" id="slider-track">
+
+      <div class="slide-page">
+        <div class="hud-panel weather-immersive-panel" id="weather-immersive-bg">
+          <div class="weather-immersive-content">
+            <div class="weather-immersive-location">
+              <i class="fa-solid fa-location-dot"></i>
+              Kuala Lumpur / Hub
+            </div>
+
+            <div class="weather-immersive-clock" id="weather-page-clock">00:00:00</div>
+
+            <div class="weather-immersive-details">
+              <span class="weather-immersive-temp" id="weather-page-temp">32°C</span>
+              <span class="weather-immersive-desc" id="weather-page-desc">Nublado</span>
+            </div>
+
+            <div class="weather-routine-bar">
+              <i class="fa-solid fa-sun minimal-routine-icon" id="min-icon-morning" title="Manhã"></i>
+              <i class="fa-solid fa-dumbbell minimal-routine-icon" id="min-icon-gym" title="Academia"></i>
+              <i class="fa-solid fa-utensils minimal-routine-icon" id="min-icon-food" title="Comida"></i>
+              <i class="fa-solid fa-bed minimal-routine-icon" id="min-icon-bed" title="Cama"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-page">
+        <div class="hud-panel metrics-section">
+          <div class="section-header">
+            <span>
+              <i class="fa-solid fa-location-crosshairs" style="color: var(--primary);"></i>
+              Kuala Lumpur / Hub
+            </span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Tempo Real</span>
+          </div>
+
+          <div class="weather-highlight">
+            <div class="metric-card" title="Condição Atual">
+              <span class="metric-label">
+                <i class="fa-solid fa-temperature-arrow-up" style="color: var(--primary);"></i>
+                Condição Atual
+              </span>
+
+              <div class="metric-value-container">
+                <span class="temp-main" id="weather-temp">32°C</span>
+                <span class="temp-sub" id="weather-desc">Nublado</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-label" id="market-title">
+                <i class="fa-solid fa-chart-line" style="color: var(--success);"></i>
+                Cotação Ativa
+              </span>
+
+              <div class="metric-value-container market-rotator" id="market-rotator">
+                <span id="market-name" style="font-size: 0.9rem; color: var(--text-muted);">Bitcoin</span>
+                <span class="market-val" id="market-val" style="color: #f7931a;">$67,420</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2vh 0; background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 20px; margin: auto 0;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">
+              <i class="fa-regular fa-clock" style="color: var(--primary);"></i>
+              Horário Local
+            </span>
+
+            <div id="central-box-clock" style="font-size: clamp(2.5rem, 4.5vw, 4.5rem); font-weight: 800; color: #ffffff; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 30px rgba(56, 189, 248, 0.2);">
+              00:00
+            </div>
+          </div>
+
+          <div class="forecast-strip" id="forecast"></div>
+        </div>
+
+        <div class="hud-panel feed-section">
+          <div class="section-header">
+            <span>
+              <i class="fa-brands fa-spotify" style="color: var(--spotify);"></i>
+              Central Spotify
+            </span>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button class="spotify-open-btn" id="open-spotify">
+                <i class="fa-brands fa-spotify"></i>
+                Abrir
+              </button>
+
+              <button class="mirror-btn" id="open-mirror">
+                <i class="fa-solid fa-camera"></i>
+                Espelho
+              </button>
+            </div>
+          </div>
+
+          <div class="music-player-card">
+            <div class="music-info-row">
+              <div class="album-art" id="music-art">
+                <i class="fa-brands fa-spotify" id="music-art-icon"></i>
+              </div>
+
+              <div class="music-details">
+                <div class="music-title" id="music-title-text">Spotify Desktop</div>
+                <div class="music-artist" id="music-artist-text">Aguardando integração...</div>
+              </div>
+            </div>
+
+            <div class="music-status-row">
+              <span class="media-pill">
+                <span class="media-dot" id="spotify-dot"></span>
+                <span id="spotify-status-text">Verificando Spotify...</span>
+              </span>
+
+              <span id="spotify-raw-title">---</span>
+            </div>
+
+            <div class="music-progress-container">
+              <div class="music-progress-bar">
+                <div class="music-progress-fill" id="music-progress-fill"></div>
+              </div>
+
+              <div class="music-times">
+                <span id="music-current-time">Sistema</span>
+                <span id="music-total-time">Teclas globais</span>
+              </div>
+            </div>
+
+            <div class="music-controls">
+              <button class="music-btn" id="music-prev" title="Anterior">
+                <i class="fa-solid fa-backward-step"></i>
+              </button>
+
+              <button class="music-btn-play" id="music-play-pause" title="Play/Pause">
+                <i class="fa-solid fa-play" id="play-pause-icon"></i>
+              </button>
+
+              <button class="music-btn" id="music-next" title="Próxima">
+                <i class="fa-solid fa-forward-step"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mirror-modal" id="mirror-modal">
+            <video class="mirror-video" id="mirror-video" autoplay playsinline muted></video>
+            <button class="mirror-close" id="close-mirror">Fechar Espelho</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-page">
+        <div class="hud-panel">
+          <div class="section-header">
+            <span>
+              <i class="fa-solid fa-lightbulb" style="color: #facc15;"></i>
+              Iluminação ESP32
+            </span>
+
+            <div class="esp32-status">
+              <i class="fa-solid fa-circle" style="font-size: 6px;"></i>
+              UI Local
+            </div>
+          </div>
+
+          <div class="esp32-controls-grid">
+            <div class="control-card active" id="card-luz-sala">
+              <div class="control-header">
+                <span class="control-title">
+                  <i class="fa-solid fa-bolt" style="color: var(--primary);"></i>
+                  Lâmpada Principal
+                </span>
+
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="switch-luz" checked />
+                  <span class="slider-switch"></span>
+                </label>
+              </div>
+
+              <div class="control-footer">
+                <span>Pino GPIO 21</span>
+                <span id="status-luz-txt" style="color: var(--primary); font-weight: 600;">Ligado</span>
+              </div>
+            </div>
+
+            <div class="control-card" id="card-luz-led">
+              <div class="control-header">
+                <span class="control-title">
+                  <i class="fa-solid fa-palette" style="color: var(--secondary);"></i>
+                  Fita LED RGB
+                </span>
+
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="switch-led" />
+                  <span class="slider-switch"></span>
+                </label>
+              </div>
+
+              <div class="control-footer">
+                <span>Pino PWM 22</span>
+                <span id="status-led-txt" style="color: var(--text-muted);">Desligado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-panel">
+          <div class="section-header">
+            <span>
+              <i class="fa-solid fa-snowflake" style="color: var(--primary);"></i>
+              Ar Condicionado ESP32
+            </span>
+
+            <span style="font-size: 0.75rem; color: var(--text-muted);">IR / Modbus</span>
+          </div>
+
+          <div class="esp32-controls-grid">
+            <div class="control-card active">
+              <div class="control-header">
+                <span class="control-title">
+                  <i class="fa-solid fa-wind" style="color: var(--primary);"></i>
+                  Split Quarto / Hub
+                </span>
+
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="switch-ac" checked />
+                  <span class="slider-switch"></span>
+                </label>
+              </div>
+
+              <div class="control-footer">
+                <span>Temperatura Alvo</span>
+
+                <div class="temp-adjuster" onclick="event.stopPropagation()">
+                  <button class="temp-btn" id="temp-minus">-</button>
+                  <strong id="ac-temp-val" style="font-size: 1.3rem; color: white; min-width: 55px; text-align: center;">22°C</strong>
+                  <button class="temp-btn" id="temp-plus">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-card">
+              <div class="control-header">
+                <span class="control-title">
+                  <i class="fa-solid fa-gauge-high" style="color: var(--success);"></i>
+                  Ventilação Forçada
+                </span>
+
+                <span style="font-size: 0.9rem; color: var(--success); font-weight: 600; background: rgba(34,197,94,0.1); padding: 4px 10px; border-radius: 8px;">
+                  Modo Auto
+                </span>
+              </div>
+
+              <div class="control-footer">
+                <span>Sensor DHT22</span>
+                <span style="color: white; font-weight: 600; font-size: 1.05rem;">64%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="slider-indicators">
+    <div class="indicator-dot active" onclick="goToSlide(0)"></div>
+    <div class="indicator-dot" onclick="goToSlide(1)"></div>
+    <div class="indicator-dot" onclick="goToSlide(2)"></div>
+  </div>
+
+  <div class="fullscreen-hint">Arraste para os lados ou use os indicadores</div>
+
+  <script>
+    const viewport = document.getElementById("slider-viewport");
+    const track = document.getElementById("slider-track");
+    const dots = document.querySelectorAll(".indicator-dot");
+    const topTimeSection = document.getElementById("top-time-section");
+
+    let currentSlide = 0;
+    let startX = 0;
+    let isDragging = false;
+    let inactivityTimer = null;
+
+    function safeClosest(target, selector) {
+      return target && typeof target.closest === "function" && target.closest(selector);
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+
+      if (el) {
+        el.textContent = value;
+      }
+    }
+
+    async function requestAppFullscreen() {
+      try {
+        if (document.fullscreenElement) return;
+
+        const el = document.documentElement;
+
+        if (el.requestFullscreen) {
+          await el.requestFullscreen();
+        }
+      } catch (error) {
+        console.warn("Fullscreen via HTML bloqueado pelo navegador/Electron:", error.message);
+      }
+    }
+
+    const INACTIVITY_DELAY_MS = 10000;
+
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  document.body.classList.remove("dimmed");
+
+  inactivityTimer = setTimeout(() => {
+    goToSlide(0, false);
+
+    requestAnimationFrame(() => {
+      document.body.classList.add("dimmed");
+    });
+  }, INACTIVITY_DELAY_MS);
+}
+
+    function goToSlide(index, shouldResetTimer = true) {
+      currentSlide = Math.max(0, Math.min(2, Number(index || 0)));
+
+      if (track) {
+        track.style.transform = `translateX(-${currentSlide * 33.333}%)`;
+      }
+
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle("active", idx === currentSlide);
+      });
+
+      if (topTimeSection) {
+        if (currentSlide === 0) {
+          topTimeSection.classList.add("hidden");
+        } else {
+          topTimeSection.classList.remove("hidden");
+        }
+      }
+
+      if (shouldResetTimer) {
+        resetInactivityTimer();
+        }
+    }
+
+    window.goToSlide = goToSlide;
+
+    ["touchstart", "mousedown", "wheel", "keydown", "click"].forEach((evt) => {
+      window.addEventListener(evt, (e) => {
+        requestAppFullscreen();
+
+        if (
+          safeClosest(e.target, ".slider-indicators") ||
+          safeClosest(e.target, ".mirror-modal") ||
+          safeClosest(e.target, "button") ||
+          safeClosest(e.target, "input")
+        ) {
+          return;
+        }
+
+        resetInactivityTimer();
+      }, { passive: true });
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement) {
+        setTimeout(requestAppFullscreen, 500);
+      }
+    });
+
+    if (viewport) {
+      viewport.addEventListener("touchstart", (e) => {
+        if (!e.touches || !e.touches.length) return;
+
+        startX = e.touches[0].clientX;
+        resetInactivityTimer();
+      });
+
+      viewport.addEventListener("touchend", (e) => {
+        if (!e.changedTouches || !e.changedTouches.length) return;
+
+        const diff = startX - e.changedTouches[0].clientX;
+
+        if (diff > 50 && currentSlide < 2) {
+          goToSlide(currentSlide + 1);
+        } else if (diff < -50 && currentSlide > 0) {
+          goToSlide(currentSlide - 1);
+        }
+      });
+
+      viewport.addEventListener("mousedown", (e) => {
+        startX = e.clientX;
+        isDragging = true;
+        resetInactivityTimer();
+      });
+
+      viewport.addEventListener("mouseup", (e) => {
+        if (!isDragging) return;
+
+        const diff = startX - e.clientX;
+
+        if (diff > 80 && currentSlide < 2) {
+          goToSlide(currentSlide + 1);
+        } else if (diff < -80 && currentSlide > 0) {
+          goToSlide(currentSlide - 1);
+        }
+
+        isDragging = false;
+      });
+
+      viewport.addEventListener("mouseleave", () => {
+        isDragging = false;
+      });
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+
+      setText(
+        "weather-page-clock",
+        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${seconds}`
+      );
+
+      setText(
+        "central-box-clock",
+        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
+      );
+
+      document.querySelectorAll(".routine-icon").forEach((icon) => {
+        icon.classList.remove("active");
+      });
+
+      document.querySelectorAll(".minimal-routine-icon").forEach((icon) => {
+        icon.classList.remove("active");
+      });
+
+      if (hours === 7) {
+        document.getElementById("icon-morning")?.classList.add("active");
+        document.getElementById("min-icon-morning")?.classList.add("active");
+      } else if (hours === 19 && minutes <= 30) {
+        document.getElementById("icon-gym")?.classList.add("active");
+        document.getElementById("min-icon-gym")?.classList.add("active");
+      } else if ((hours === 21 && minutes >= 30) || (hours === 22 && minutes <= 30)) {
+        document.getElementById("icon-food")?.classList.add("active");
+        document.getElementById("min-icon-food")?.classList.add("active");
+      } else if (hours >= 23 || hours === 0 || (hours === 1 && minutes <= 30)) {
+        document.getElementById("icon-bed")?.classList.add("active");
+        document.getElementById("min-icon-bed")?.classList.add("active");
+      }
+
+      const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      };
+
+      const dateStr = now.toLocaleDateString("pt-BR", options);
+      const formattedDate = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+
+      setText("date", formattedDate);
+
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      const weekNum = Math.ceil((((now - startOfYear) / 86400000) + startOfYear.getDay() + 1) / 7);
+
+      setText("week-number", `Semana ${weekNum} do Ano`);
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 9000) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        const response = await fetch(url, {
+          ...options,
+          signal: controller.signal
+        });
+
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        return await response.json();
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    async function fetchWeatherData() {
+      try {
+        const data = await fetchWithTimeout(
+          "https://api.open-meteo.com/v1/forecast?latitude=3.139&longitude=101.6869&current_weather=true",
+          {},
+          9000
+        );
+
+        if (data && data.current_weather) {
+          const temp = Math.round(data.current_weather.temperature);
+          const weatherCode = data.current_weather.weathercode;
+
+          let desc = "Ensolarado";
+          let bgImage = "https://images.unsplash.com/photo-1622396481328-9b1b78cdd9fd?auto=format&fit=crop&w=1920&q=80";
+
+          if (weatherCode >= 1 && weatherCode <= 3) {
+            desc = "Nublado";
+            bgImage = "https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=1920&q=80";
+          } else if (weatherCode >= 51 && weatherCode <= 67) {
+            desc = "Chuvoso";
+            bgImage = "https://images.unsplash.com/photo-1519692933481-e162a57d6721?auto=format&fit=crop&w=1920&q=80";
+          }
+
+          setText("weather-temp", `${temp}°C`);
+          setText("weather-desc", desc);
+          setText("weather-page-temp", `${temp}°C`);
+          setText("weather-page-desc", desc);
+
+          const weatherBg = document.getElementById("weather-immersive-bg");
+
+          if (weatherBg) {
+            weatherBg.style.backgroundImage = `url('${bgImage}')`;
+          }
+        }
+      } catch (err) {
+        console.warn("Erro ao buscar clima:", err.message);
+      }
+    }
+
+    function renderForecastPlaceholder() {
+      const forecast = document.getElementById("forecast");
+
+      if (!forecast) return;
+
+      const items = [
+        ["Agora", "fa-cloud-sun", "32°C"],
+        ["12h", "fa-cloud", "31°C"],
+        ["15h", "fa-cloud-showers-heavy", "29°C"],
+        ["18h", "fa-cloud-moon", "28°C"]
+      ];
+
+      forecast.innerHTML = items.map((item) => {
+        return `
+          <div class="forecast-item">
+            <span>${item[0]}</span>
+            <i class="fa-solid ${item[1]}"></i>
+            <strong>${item[2]}</strong>
+          </div>
+        `;
+      }).join("");
+    }
+
+    fetchWeatherData();
+    renderForecastPlaceholder();
+    setInterval(fetchWeatherData, 600000);
+
+    const openMirrorBtn = document.getElementById("open-mirror");
+    const closeMirrorBtn = document.getElementById("close-mirror");
+    const mirrorModal = document.getElementById("mirror-modal");
+    const mirrorVideo = document.getElementById("mirror-video");
+
+    let mediaStream = null;
+
+    if (openMirrorBtn && mirrorModal && mirrorVideo) {
+      openMirrorBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        mirrorModal.classList.add("active");
+
+        try {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error("Webcam não suportada neste ambiente.");
+          }
+
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: 1280,
+              height: 720
+            }
+          });
+
+          mirrorVideo.srcObject = mediaStream;
+        } catch (err) {
+          alert("Erro ao abrir a webcam.");
+          mirrorModal.classList.remove("active");
+        }
+      });
+    }
+
+    if (closeMirrorBtn && mirrorModal && mirrorVideo) {
+      closeMirrorBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        mirrorModal.classList.remove("active");
+
+        if (mediaStream) {
+          mediaStream.getTracks().forEach((trackItem) => trackItem.stop());
+          mediaStream = null;
+        }
+
+        mirrorVideo.srcObject = null;
+      });
+    }
+
+    const switchLuz = document.getElementById("switch-luz");
+    const switchLed = document.getElementById("switch-led");
+
+    if (switchLuz) {
+      switchLuz.addEventListener("change", (e) => {
+        const card = document.getElementById("card-luz-sala");
+        const txt = document.getElementById("status-luz-txt");
+
+        if (!card || !txt) return;
+
+        if (e.target.checked) {
+          card.classList.add("active");
+          txt.textContent = "Ligado";
+          txt.style.color = "var(--primary)";
+        } else {
+          card.classList.remove("active");
+          txt.textContent = "Desligado";
+          txt.style.color = "var(--text-muted)";
+        }
+      });
+    }
+
+    if (switchLed) {
+      switchLed.addEventListener("change", (e) => {
+        const card = document.getElementById("card-luz-led");
+        const txt = document.getElementById("status-led-txt");
+
+        if (!card || !txt) return;
+
+        if (e.target.checked) {
+          card.classList.add("active");
+          txt.textContent = "Ligado";
+          txt.style.color = "var(--secondary)";
+        } else {
+          card.classList.remove("active");
+          txt.textContent = "Desligado";
+          txt.style.color = "var(--text-muted)";
+        }
+      });
+    }
+
+    let currentTemp = 22;
+
+    const tempValEl = document.getElementById("ac-temp-val");
+    const tempPlusBtn = document.getElementById("temp-plus");
+    const tempMinusBtn = document.getElementById("temp-minus");
+
+    if (tempPlusBtn && tempValEl) {
+      tempPlusBtn.addEventListener("click", () => {
+        if (currentTemp < 30) {
+          currentTemp++;
+          tempValEl.textContent = `${currentTemp}°C`;
+        }
+      });
+    }
+
+    if (tempMinusBtn && tempValEl) {
+      tempMinusBtn.addEventListener("click", () => {
+        if (currentTemp > 16) {
+          currentTemp--;
+          tempValEl.textContent = `${currentTemp}°C`;
+        }
+      });
+    }
+
+    const playPauseBtn = document.getElementById("music-play-pause");
+    const playPauseIcon = document.getElementById("play-pause-icon");
+    const albumArtEl = document.getElementById("music-art");
+    const artIcon = document.getElementById("music-art-icon");
+    const titleEl = document.getElementById("music-title-text");
+    const artistEl = document.getElementById("music-artist-text");
+    const spotifyDot = document.getElementById("spotify-dot");
+    const spotifyStatusText = document.getElementById("spotify-status-text");
+    const spotifyRawTitle = document.getElementById("spotify-raw-title");
+    const progressFill = document.getElementById("music-progress-fill");
+    const progressBar = document.querySelector(".music-progress-bar");
+    const currentTimeEl = document.getElementById("music-current-time");
+    const totalTimeEl = document.getElementById("music-total-time");
+    const openSpotifyBtn = document.getElementById("open-spotify");
+
+    const albumCache = new Map();
+
+    const spotifyPlayerState = {
+      isOpen: false,
+      isPlaying: false,
+      title: "",
+      artist: "",
+      rawTitle: "",
+      trackKey: "",
+      durationMs: 0,
+      artwork: "",
+      album: "",
+      source: "",
+      startedAtMs: 0,
+      elapsedBeforePauseMs: 0,
+      lastLookupKey: "",
+      lookupRunning: false,
+      manualToggleAt: 0
+    };
+
+    function normalizeText(value) {
+      return String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\(.*?\)/g, " ")
+        .replace(/\[.*?\]/g, " ")
+        .replace(/\bfeat\.?\b/g, " ")
+        .replace(/\bft\.?\b/g, " ")
+        .replace(/\bremaster(ed)?\b/g, " ")
+        .replace(/\bexplicit\b/g, " ")
+        .replace(/[^a-z0-9]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function cleanTrackTitle(value) {
+      return String(value || "")
+        .replace(/\s*-\s*Remaster(ed)?\s*\d*/gi, "")
+        .replace(/\s*\(.*?remaster.*?\)/gi, "")
+        .replace(/\s*\[.*?remaster.*?\]/gi, "")
+        .trim();
+    }
+
+    function createTrackKey(title, artist) {
+      return `${normalizeText(artist)}::${normalizeText(title)}`;
+    }
+
+    function scoreCandidate(queryTitle, queryArtist, candidateTitle, candidateArtist) {
+      const qt = normalizeText(queryTitle);
+      const qa = normalizeText(queryArtist);
+      const ct = normalizeText(candidateTitle);
+      const ca = normalizeText(candidateArtist);
+
+      let score = 0;
+
+      if (!qt || !ct) return score;
+
+      if (ct === qt) {
+        score += 90;
+      } else if (ct.includes(qt) || qt.includes(ct)) {
+        score += 55;
+      }
+
+      if (qa && ca) {
+        if (ca === qa) {
+          score += 70;
+        } else if (ca.includes(qa) || qa.includes(ca)) {
+          score += 38;
+        }
+      }
+
+      const titleWords = qt.split(" ").filter((word) => word.length > 2);
+      const artistWords = qa.split(" ").filter((word) => word.length > 2);
+
+      for (const word of titleWords) {
+        if (ct.includes(word)) {
+          score += 4;
+        }
+      }
+
+      for (const word of artistWords) {
+        if (ca.includes(word)) {
+          score += 3;
+        }
+      }
+
+      return score;
+    }
+
+    function upgradeItunesArtwork(url) {
+      return String(url || "")
+        .replace("100x100bb", "1000x1000bb")
+        .replace("600x600bb", "1000x1000bb")
+        .replace("60x60bb", "1000x1000bb")
+        .replace("30x30bb", "1000x1000bb");
+    }
+
+    function preloadImage(url) {
+      return new Promise((resolve, reject) => {
+        if (!url) {
+          reject(new Error("URL de imagem vazia"));
+          return;
+        }
+
+        const image = new Image();
+
+        image.onload = () => resolve(url);
+        image.onerror = () => reject(new Error("Falha ao carregar imagem"));
+        image.referrerPolicy = "no-referrer";
+        image.src = url;
+      });
+    }
+
+    async function lookupItunesAlbum(title, artist) {
+      const searchTitle = cleanTrackTitle(title);
+      const term = encodeURIComponent(`${artist} ${searchTitle}`);
+      const url = `https://itunes.apple.com/search?term=${term}&entity=song&media=music&limit=20`;
+
+      const data = await fetchWithTimeout(url, {}, 9000);
+
+      if (!data || !Array.isArray(data.results) || data.results.length === 0) {
+        return null;
+      }
+
+      let best = null;
+      let bestScore = -1;
+
+      for (const item of data.results) {
+        const itemScore = scoreCandidate(
+          searchTitle,
+          artist,
+          item.trackName,
+          item.artistName
+        );
+
+        if (itemScore > bestScore) {
+          bestScore = itemScore;
+          best = item;
+        }
+      }
+
+      if (!best || bestScore < 28) {
+        return null;
+      }
+
+      return {
+        ok: true,
+        source: "iTunes",
+        title: best.trackName || title,
+        artist: best.artistName || artist,
+        album: best.collectionName || "",
+        artwork: upgradeItunesArtwork(best.artworkUrl100 || ""),
+        durationMs: Number(best.trackTimeMillis || 0)
+      };
+    }
+
+    async function lookupDeezerAlbum(title, artist) {
+      const searchTitle = cleanTrackTitle(title);
+      const query = encodeURIComponent(`artist:"${artist}" track:"${searchTitle}"`);
+      const url = `https://api.deezer.com/search?q=${query}&limit=15`;
+
+      const data = await fetchWithTimeout(url, {}, 9000);
+
+      if (!data || !Array.isArray(data.data) || data.data.length === 0) {
+        return null;
+      }
+
+      let best = null;
+      let bestScore = -1;
+
+      for (const item of data.data) {
+        const itemScore = scoreCandidate(
+          searchTitle,
+          artist,
+          item.title,
+          item.artist && item.artist.name
+        );
+
+        if (itemScore > bestScore) {
+          bestScore = itemScore;
+          best = item;
+        }
+      }
+
+      if (!best || bestScore < 28) {
+        return null;
+      }
+
+      return {
+        ok: true,
+        source: "Deezer",
+        title: best.title || title,
+        artist: best.artist && best.artist.name ? best.artist.name : artist,
+        album: best.album && best.album.title ? best.album.title : "",
+        artwork: best.album && best.album.cover_xl ? best.album.cover_xl : "",
+        durationMs: Number(best.duration || 0) * 1000
+      };
+    }
+
+    async function lookupAlbumByWeb(title, artist) {
+      const cacheKey = createTrackKey(title, artist);
+
+      if (albumCache.has(cacheKey)) {
+        return albumCache.get(cacheKey);
+      }
+
+      let result = null;
+
+      try {
+        result = await lookupItunesAlbum(title, artist);
+      } catch (error) {
+        console.warn("iTunes não retornou capa:", error.message);
+      }
+
+      if (!result || !result.artwork) {
+        try {
+          result = await lookupDeezerAlbum(title, artist);
+        } catch (error) {
+          console.warn("Deezer não retornou capa:", error.message);
+        }
+      }
+
+      if (result && result.artwork) {
+        try {
+          await preloadImage(result.artwork);
+        } catch (error) {
+          console.warn("Imagem encontrada, mas não carregou:", error.message);
+          result.artwork = "";
+        }
+      }
+
+      if (!result) {
+        result = {
+          ok: false,
+          source: "",
+          title,
+          artist,
+          album: "",
+          artwork: "",
+          durationMs: 0,
+          message: "Capa não encontrada"
+        };
+      }
+
+      albumCache.set(cacheKey, result);
+
+      return result;
+    }
+
+    function formatDuration(ms) {
+      const safeMs = Math.max(0, Number(ms || 0));
+      const totalSeconds = Math.floor(safeMs / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = String(totalSeconds % 60).padStart(2, "0");
+
+      return `${minutes}:${seconds}`;
+    }
+
+    function getCurrentElapsedMs() {
+      if (!spotifyPlayerState.isPlaying) {
+        return spotifyPlayerState.elapsedBeforePauseMs;
+      }
+
+      if (!spotifyPlayerState.startedAtMs) {
+        return spotifyPlayerState.elapsedBeforePauseMs;
+      }
+
+      return spotifyPlayerState.elapsedBeforePauseMs + (Date.now() - spotifyPlayerState.startedAtMs);
+    }
+
+    function resetAlbumArt() {
+      spotifyPlayerState.artwork = "";
+      spotifyPlayerState.album = "";
+      spotifyPlayerState.source = "";
+
+      if (albumArtEl) {
+        albumArtEl.classList.remove("has-cover", "loading");
+        albumArtEl.style.backgroundImage = "";
+      }
+
+      if (artIcon) {
+        artIcon.style.display = "";
+      }
+    }
+
+    function setAlbumArt(url) {
+      if (!url) {
+        resetAlbumArt();
+        return;
+      }
+
+      spotifyPlayerState.artwork = url;
+
+      if (albumArtEl) {
+        albumArtEl.classList.add("has-cover");
+        albumArtEl.classList.remove("loading");
+        albumArtEl.style.backgroundImage = `url("${url}")`;
+      }
+
+      if (artIcon) {
+        artIcon.style.display = "none";
+      }
+    }
+
+    function setMediaUiPlaying(playing) {
+      const nextPlaying = Boolean(playing);
+
+      if (nextPlaying === spotifyPlayerState.isPlaying) {
+        if (playPauseIcon) {
+          playPauseIcon.className = nextPlaying
+            ? "fa-solid fa-pause"
+            : "fa-solid fa-play";
+        }
+
+        return;
+      }
+
+      if (nextPlaying) {
+        spotifyPlayerState.startedAtMs = Date.now();
+      } else {
+        spotifyPlayerState.elapsedBeforePauseMs = getCurrentElapsedMs();
+        spotifyPlayerState.startedAtMs = 0;
+      }
+
+      spotifyPlayerState.isPlaying = nextPlaying;
+
+      if (playPauseIcon) {
+        playPauseIcon.className = spotifyPlayerState.isPlaying
+          ? "fa-solid fa-pause"
+          : "fa-solid fa-play";
+      }
+
+      if (spotifyPlayerState.isPlaying) {
+        artIcon?.classList.add("fa-spin");
+        progressFill?.classList.add("syncing");
+      } else {
+        artIcon?.classList.remove("fa-spin");
+        progressFill?.classList.remove("syncing");
+      }
+    }
+
+    function setSpotifyConnected(isOpen) {
+      spotifyPlayerState.isOpen = Boolean(isOpen);
+
+      if (spotifyDot) {
+        spotifyDot.classList.toggle("online", spotifyPlayerState.isOpen);
+      }
+
+      if (!spotifyPlayerState.isOpen) {
+        progressFill?.classList.remove("syncing");
+        progressBar?.classList.remove("indeterminate");
+      }
+    }
+
+    function resetProgressForNewTrack() {
+      spotifyPlayerState.durationMs = 0;
+      spotifyPlayerState.startedAtMs = Date.now();
+      spotifyPlayerState.elapsedBeforePauseMs = 0;
+
+      if (progressFill) {
+        progressFill.style.width = "0%";
+      }
+
+      if (currentTimeEl) {
+        currentTimeEl.textContent = "0:00";
+      }
+
+      if (totalTimeEl) {
+        totalTimeEl.textContent = "--:--";
+      }
+
+      progressBar?.classList.remove("synced", "indeterminate");
+    }
+
+    async function lookupAlbumForCurrentTrack() {
+      const title = spotifyPlayerState.title;
+      const artist = spotifyPlayerState.artist;
+      const trackKey = spotifyPlayerState.trackKey;
+
+      if (!title || !artist) {
+        return;
+      }
+
+      if (spotifyPlayerState.lookupRunning || spotifyPlayerState.lastLookupKey === trackKey) {
+        return;
+      }
+
+      spotifyPlayerState.lookupRunning = true;
+      spotifyPlayerState.lastLookupKey = trackKey;
+
+      try {
+        if (spotifyRawTitle) {
+          spotifyRawTitle.textContent = "Buscando capa na web...";
+        }
+
+        albumArtEl?.classList.add("loading");
+
+        const result = await lookupAlbumByWeb(title, artist);
+
+        if (spotifyPlayerState.trackKey !== trackKey) {
+          return;
+        }
+
+        if (result && result.ok) {
+          spotifyPlayerState.durationMs = Number(result.durationMs || 0);
+          spotifyPlayerState.album = result.album || "";
+          spotifyPlayerState.source = result.source || "";
+
+          if (result.artwork) {
+            setAlbumArt(result.artwork);
+          } else {
+            resetAlbumArt();
+          }
+
+          if (spotifyPlayerState.durationMs > 0) {
+            if (totalTimeEl) {
+              totalTimeEl.textContent = formatDuration(spotifyPlayerState.durationMs);
+            }
+
+            progressBar?.classList.add("synced");
+            progressBar?.classList.remove("indeterminate");
+          } else {
+            if (totalTimeEl) {
+              totalTimeEl.textContent = "--:--";
+            }
+          }
+
+          const albumInfo = spotifyPlayerState.album
+            ? `${spotifyPlayerState.album} · ${spotifyPlayerState.source}`
+            : spotifyPlayerState.source;
+
+          if (spotifyRawTitle) {
+            spotifyRawTitle.textContent = albumInfo || spotifyPlayerState.rawTitle || "Spotify";
+          }
+        } else {
+          spotifyPlayerState.durationMs = 0;
+          resetAlbumArt();
+
+          if (totalTimeEl) {
+            totalTimeEl.textContent = "--:--";
+          }
+
+          if (spotifyRawTitle) {
+            spotifyRawTitle.textContent = result && result.message ? result.message : "Capa não encontrada";
+          }
+        }
+      } catch (error) {
+        spotifyPlayerState.durationMs = 0;
+        resetAlbumArt();
+
+        if (totalTimeEl) {
+          totalTimeEl.textContent = "--:--";
+        }
+
+        if (spotifyRawTitle) {
+          spotifyRawTitle.textContent = "Erro ao buscar capa";
+        }
+
+        console.error("Erro ao buscar capa via web:", error);
+      } finally {
+        albumArtEl?.classList.remove("loading");
+        spotifyPlayerState.lookupRunning = false;
+      }
+    }
+
+    function applyTrackStatus(status) {
+      const nextTitle = status.title || "Spotify Desktop";
+      const nextArtist = status.artist || "Mídia do sistema";
+      const nextRawTitle = status.rawTitle || "";
+      const nextTrackKey = createTrackKey(nextTitle, nextArtist);
+      const isRealTrack = Boolean(status.isPlayingLike && nextTitle && nextArtist);
+
+      if (titleEl) {
+        titleEl.textContent = nextTitle;
+      }
+
+      if (artistEl) {
+        artistEl.textContent = nextArtist;
+      }
+
+      if (!isRealTrack) {
+        if (spotifyRawTitle) {
+          spotifyRawTitle.textContent = nextRawTitle || "Spotify";
+        }
+
+        return;
+      }
+
+      const changedTrack = nextTrackKey !== spotifyPlayerState.trackKey;
+
+      spotifyPlayerState.title = nextTitle;
+      spotifyPlayerState.artist = nextArtist;
+      spotifyPlayerState.rawTitle = nextRawTitle;
+
+      if (changedTrack) {
+        spotifyPlayerState.trackKey = nextTrackKey;
+        spotifyPlayerState.lastLookupKey = "";
+
+        resetProgressForNewTrack();
+        resetAlbumArt();
+        lookupAlbumForCurrentTrack();
+      }
+    }
+
+    async function getSpotifyStatus() {
+      try {
+        if (!window.electronAPI || typeof window.electronAPI.getMediaStatus !== "function") {
+          if (titleEl) titleEl.textContent = "Electron API indisponível";
+          if (artistEl) artistEl.textContent = "Verifique preload.js e main.js";
+          if (spotifyStatusText) spotifyStatusText.textContent = "IPC não carregado";
+
+          setSpotifyConnected(false);
+          setMediaUiPlaying(false);
+          return;
+        }
+
+        const status = await window.electronAPI.getMediaStatus();
+
+        if (!status || !status.ok) {
+          if (titleEl) titleEl.textContent = "Erro no Spotify";
+          if (artistEl) artistEl.textContent = status && status.artist ? status.artist : "Falha ao consultar";
+          if (spotifyStatusText) spotifyStatusText.textContent = "Erro";
+
+          setSpotifyConnected(false);
+          setMediaUiPlaying(false);
+          return;
+        }
+
+        setSpotifyConnected(status.isOpen);
+
+        if (!status.isOpen) {
+          if (titleEl) titleEl.textContent = "Spotify fechado";
+          if (artistEl) titleEl.textContent = "Clique em Abrir Spotify";
+          if (spotifyStatusText) spotifyStatusText.textContent = "Fechado";
+          if (spotifyRawTitle) spotifyRawTitle.textContent = "---";
+
+          spotifyPlayerState.trackKey = "";
+          spotifyPlayerState.title = "";
+          spotifyPlayerState.artist = "";
+          spotifyPlayerState.durationMs = 0;
+          spotifyPlayerState.elapsedBeforePauseMs = 0;
+          spotifyPlayerState.startedAtMs = 0;
+
+          resetAlbumArt();
+          setMediaUiPlaying(false);
+
+          if (progressFill) {
+            progressFill.style.width = "0%";
+          }
+
+          if (currentTimeEl) {
+            currentTimeEl.textContent = "Sistema";
+          }
+
+          if (totalTimeEl) {
+            totalTimeEl.textContent = "Aguardando";
+          }
+
+          progressBar?.classList.remove("synced", "indeterminate");
+
+          return;
+        }
+
+        if (spotifyStatusText) {
+          spotifyStatusText.textContent = status.isPlayingLike ? "Detectado" : "Aberto";
+        }
+
+        applyTrackStatus(status);
+
+        const recentlyToggled = Date.now() - spotifyPlayerState.manualToggleAt < 3500;
+
+        if (status.isPlayingLike && !recentlyToggled) {
+          setMediaUiPlaying(true);
+        }
+      } catch (error) {
+        if (titleEl) titleEl.textContent = "Erro de integração";
+        if (artistEl) titleEl.textContent = error.message;
+        if (spotifyStatusText) spotifyStatusText.textContent = "Erro IPC";
+
+        setSpotifyConnected(false);
+        setMediaUiPlaying(false);
+      }
+    }
+
+    async function sendMediaCommand(action) {
+      try {
+        resetInactivityTimer();
+
+        if (!window.electronAPI || typeof window.electronAPI.mediaControl !== "function") {
+          console.warn("electronAPI.mediaControl indisponível.");
+          return;
+        }
+
+        const result = await window.electronAPI.mediaControl(action);
+
+        if (action === "toggle" || action === "playpause") {
+          spotifyPlayerState.manualToggleAt = Date.now();
+          setMediaUiPlaying(!spotifyPlayerState.isPlaying);
+        }
+
+        if (action === "next" || action === "previous" || action === "prev") {
+          spotifyPlayerState.elapsedBeforePauseMs = 0;
+          spotifyPlayerState.startedAtMs = Date.now();
+
+          if (progressFill) {
+            progressFill.style.width = "0%";
+          }
+
+          if (currentTimeEl) {
+            currentTimeEl.textContent = "0:00";
+          }
+        }
+
+        if (result && result.status) {
+          setTimeout(getSpotifyStatus, 350);
+          setTimeout(getSpotifyStatus, 1000);
+          setTimeout(getSpotifyStatus, 1800);
+        }
+      } catch (err) {
+        console.error(`Erro ao enviar comando de mídia (${action}):`, err);
+      }
+    }
+
+    if (playPauseBtn) {
+      playPauseBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        sendMediaCommand("toggle");
+      });
+    }
+
+    const nextBtn = document.getElementById("music-next");
+    const prevBtn = document.getElementById("music-prev");
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        sendMediaCommand("next");
+      });
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        sendMediaCommand("previous");
+      });
+    }
+
+    if (openSpotifyBtn) {
+      openSpotifyBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+
+        if (window.electronAPI && typeof window.electronAPI.openSpotify === "function") {
+          await window.electronAPI.openSpotify();
+          setTimeout(getSpotifyStatus, 1000);
+          setTimeout(getSpotifyStatus, 2500);
+        }
+      });
+    }
+
+    function animateMusicProgress() {
+      if (!spotifyPlayerState.isOpen) {
+        if (progressFill) {
+          progressFill.style.width = "0%";
+        }
+
+        requestAnimationFrame(animateMusicProgress);
+        return;
+      }
+
+      const durationMs = Number(spotifyPlayerState.durationMs || 0);
+      const elapsedMs = getCurrentElapsedMs();
+
+      if (durationMs > 0) {
+        const safeElapsed = Math.min(elapsedMs, durationMs);
+        const percent = Math.max(0, Math.min(100, (safeElapsed / durationMs) * 100));
+
+        progressBar?.classList.remove("indeterminate");
+
+        if (progressFill) {
+          progressFill.style.width = `${percent}%`;
+        }
+
+        if (currentTimeEl) {
+          currentTimeEl.textContent = formatDuration(safeElapsed);
+        }
+
+        if (totalTimeEl) {
+          totalTimeEl.textContent = formatDuration(durationMs);
+        }
+      } else if (spotifyPlayerState.isPlaying) {
+        progressBar?.classList.add("indeterminate");
+
+        if (currentTimeEl) {
+          currentTimeEl.textContent = "Tocando";
+        }
+
+        if (totalTimeEl) {
+          totalTimeEl.textContent = "Buscando duração";
+        }
+      } else {
+        progressBar?.classList.remove("indeterminate");
+
+        if (currentTimeEl) {
+          currentTimeEl.textContent = "Pausado";
+        }
+
+        if (totalTimeEl) {
+          totalTimeEl.textContent = durationMs > 0 ? formatDuration(durationMs) : "--:--";
+        }
+      }
+
+      requestAnimationFrame(animateMusicProgress);
+    }
+
+    setInterval(getSpotifyStatus, 2500);
+    getSpotifyStatus();
+    animateMusicProgress();
+
+    requestAppFullscreen();
+    resetInactivityTimer();
+    goToSlide(0);
+  </script>
+</body>
+</html>
