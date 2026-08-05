@@ -72,26 +72,29 @@
       filter: blur(60px);
     }
 
-    body.dimmed .time-section,
-    body.dimmed .slider-viewport,
-    body.dimmed .slider-indicators {
-      opacity: 0.25;
-      filter: brightness(0.6);
-      transition: opacity 1s ease, filter 1s ease;
-    }
+    /* Modo baixa iluminação: somente o fundo escurece */
+body.dimmed .weather-immersive-panel::before {
+  background: rgba(3, 5, 8, 0.65);
+  backdrop-filter: blur(8px) brightness(0.45);
+  -webkit-backdrop-filter: blur(8px) brightness(0.45);
+  transition:
+    background 1s ease,
+    backdrop-filter 1s ease,
+    -webkit-backdrop-filter 1s ease;
+}
 
-    body.dimmed .weather-immersive-panel {
-      opacity: 1 !important;
-      filter: none !important;
-    }
-
-    body.dimmed .weather-immersive-clock {
-      text-shadow:
-        0 0 50px rgba(56, 189, 248, 0.8),
-        0 0 100px rgba(255, 255, 255, 0.4);
-      transform: scale(1.02);
-      transition: transform 1s ease;
-    }
+/* Mantém todo o conteúdo com brilho normal */
+body.dimmed .weather-immersive-content,
+body.dimmed .weather-immersive-location,
+body.dimmed .weather-immersive-clock,
+body.dimmed .weather-immersive-details,
+body.dimmed .weather-routine-bar,
+body.dimmed .time-section,
+body.dimmed .slider-indicators,
+body.dimmed .hud-panel {
+  opacity: 1;
+  filter: none;
+}
 
     .time-section,
     .slider-viewport,
@@ -403,14 +406,18 @@
     }
 
     .weather-immersive-panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(3, 5, 8, 0.65);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      z-index: 1;
-    }
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 5, 8, 0.65);
+  backdrop-filter: blur(8px) brightness(1);
+  -webkit-backdrop-filter: blur(8px) brightness(1);
+  z-index: 1;
+  transition:
+    background 1s ease,
+    backdrop-filter 1s ease,
+    -webkit-backdrop-filter 1s ease;
+}
 
     .weather-immersive-content {
       position: relative;
@@ -484,6 +491,84 @@
       padding: 12px 28px;
       border-radius: 30px;
       backdrop-filter: blur(12px);
+    }
+
+    /* TOASTER DO PLAYER NA TELA DE CLIMA */
+    .weather-player-toaster {
+      position: absolute;
+      bottom: 25px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(13, 17, 23, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 12px 22px;
+      border-radius: 20px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.15);
+      max-width: 420px;
+      width: 90%;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .weather-player-toaster.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .weather-toaster-art {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--spotify), var(--secondary));
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .weather-toaster-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .weather-toaster-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--spotify);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .weather-toaster-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .weather-toaster-artist {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .minimal-routine-icon {
@@ -877,7 +962,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.45rem;
+      font-size: 2.45rem;
       cursor: pointer;
       transition: all 0.2s ease;
       box-shadow:
@@ -1173,7 +1258,7 @@
       .music-btn-play {
         width: 86px;
         height: 86px;
-        font-size: 1.35rem;
+        font-size: 2rem;
       }
 
       .music-controls {
@@ -1232,6 +1317,18 @@
               <i class="fa-solid fa-bed minimal-routine-icon" id="min-icon-bed" title="Cama"></i>
             </div>
           </div>
+
+          <!-- TOASTER DO PLAYER ADICIONADO ABAIXO DA BARRA DE ROTINA (SEPARADO) -->
+          <div class="weather-player-toaster" id="weather-player-toaster">
+            <div class="weather-toaster-art" id="weather-toaster-art">
+              <i class="fa-brands fa-spotify"></i>
+            </div>
+            <div class="weather-toaster-info">
+              <span class="weather-toaster-label">Tocando Agora:</span>
+              <span class="weather-toaster-title" id="weather-toaster-title">Nome da Música</span>
+              <span class="weather-toaster-artist" id="weather-toaster-artist">Artista</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1277,7 +1374,7 @@
               Horário Local
             </span>
 
-            <div id="central-box-clock" style="font-size: clamp(2.5rem, 4.5vw, 4.5rem); font-weight: 800; color: #ffffff; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 30px rgba(56, 189, 248, 0.2);">
+            <div id="central-box-clock" style="font-size: clamp(4rem, 4.5vw, 4.5rem); font-weight: 800; color: #ffffff; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 30px rgba(56, 189, 248, 0.2);">
               00:00
             </div>
           </div>
@@ -1479,8 +1576,6 @@
     <div class="indicator-dot" onclick="goToSlide(2)"></div>
   </div>
 
-  <div class="fullscreen-hint">Arraste para os lados ou use os indicadores</div>
-
   <script>
     const viewport = document.getElementById("slider-viewport");
     const track = document.getElementById("slider-track");
@@ -1518,17 +1613,22 @@
       }
     }
 
-    function resetInactivityTimer() {
-      clearTimeout(inactivityTimer);
-      document.body.classList.remove("dimmed");
+    const INACTIVITY_DELAY_MS = 10000;
 
-      inactivityTimer = setTimeout(() => {
-        document.body.classList.add("dimmed");
-        goToSlide(0);
-      }, 20000);
-    }
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  document.body.classList.remove("dimmed");
 
-    function goToSlide(index) {
+  inactivityTimer = setTimeout(() => {
+    goToSlide(0, false);
+
+    requestAnimationFrame(() => {
+      document.body.classList.add("dimmed");
+    });
+  }, INACTIVITY_DELAY_MS);
+}
+
+    function goToSlide(index, shouldResetTimer = true) {
       currentSlide = Math.max(0, Math.min(2, Number(index || 0)));
 
       if (track) {
@@ -1547,7 +1647,9 @@
         }
       }
 
-      resetInactivityTimer();
+      if (shouldResetTimer) {
+        resetInactivityTimer();
+        }
     }
 
     window.goToSlide = goToSlide;
@@ -2268,6 +2370,36 @@
       progressBar?.classList.remove("synced", "indeterminate");
     }
 
+    // LÓGICA DO TOASTER DE MÚSICA NA TELA DE CLIMA
+    let toasterTimeout = null;
+
+    function showWeatherPlayerToaster(title, artist, artworkUrl) {
+      const toaster = document.getElementById("weather-player-toaster");
+      const toasterTitle = document.getElementById("weather-toaster-title");
+      const toasterArtist = document.getElementById("weather-toaster-artist");
+      const toasterArt = document.getElementById("weather-toaster-art");
+
+      if (!toaster || !toasterTitle || !toasterArtist || !toasterArt) return;
+
+      toasterTitle.textContent = title;
+      toasterArtist.textContent = artist;
+
+      if (artworkUrl) {
+        toasterArt.style.backgroundImage = `url("${artworkUrl}")`;
+        toasterArt.innerHTML = "";
+      } else {
+        toasterArt.style.backgroundImage = "";
+        toasterArt.innerHTML = '<i class="fa-brands fa-spotify"></i>';
+      }
+
+      toaster.classList.add("active");
+
+      clearTimeout(toasterTimeout);
+      toasterTimeout = setTimeout(() => {
+        toaster.classList.remove("active");
+      }, 5000); // Some depois de 5 segundos
+    }
+
     async function lookupAlbumForCurrentTrack() {
       const title = spotifyPlayerState.title;
       const artist = spotifyPlayerState.artist;
@@ -2308,6 +2440,9 @@
             resetAlbumArt();
           }
 
+          // Dispara o toaster na tela de clima com os dados atualizados
+          showWeatherPlayerToaster(title, artist, result.artwork);
+
           if (spotifyPlayerState.durationMs > 0) {
             if (totalTimeEl) {
               totalTimeEl.textContent = formatDuration(spotifyPlayerState.durationMs);
@@ -2332,6 +2467,9 @@
           spotifyPlayerState.durationMs = 0;
           resetAlbumArt();
 
+          // Dispara o toaster mesmo sem capa (fallback)
+          showWeatherPlayerToaster(title, artist, "");
+
           if (totalTimeEl) {
             totalTimeEl.textContent = "--:--";
           }
@@ -2343,6 +2481,8 @@
       } catch (error) {
         spotifyPlayerState.durationMs = 0;
         resetAlbumArt();
+
+        showWeatherPlayerToaster(title, artist, "");
 
         if (totalTimeEl) {
           totalTimeEl.textContent = "--:--";
@@ -2404,7 +2544,7 @@
           if (titleEl) titleEl.textContent = "Electron API indisponível";
           if (artistEl) artistEl.textContent = "Verifique preload.js e main.js";
           if (spotifyStatusText) spotifyStatusText.textContent = "IPC não carregado";
-
+            
           setSpotifyConnected(false);
           setMediaUiPlaying(false);
           return;
