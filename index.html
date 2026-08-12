@@ -73,28 +73,28 @@
     }
 
     /* Modo baixa iluminação: somente o fundo escurece */
-body.dimmed .weather-immersive-panel::before {
-  background: rgba(3, 5, 8, 0.65);
-  backdrop-filter: blur(8px) brightness(0.45);
-  -webkit-backdrop-filter: blur(8px) brightness(0.45);
-  transition:
-    background 1s ease,
-    backdrop-filter 1s ease,
-    -webkit-backdrop-filter 1s ease;
-}
+    body.dimmed .weather-immersive-panel::before {
+      background: rgba(3, 5, 8, 0.65);
+      backdrop-filter: blur(8px) brightness(0.45);
+      -webkit-backdrop-filter: blur(8px) brightness(0.45);
+      transition:
+        background 1s ease,
+        backdrop-filter 1s ease,
+        -webkit-backdrop-filter 1s ease;
+    }
 
-/* Mantém todo o conteúdo com brilho normal */
-body.dimmed .weather-immersive-content,
-body.dimmed .weather-immersive-location,
-body.dimmed .weather-immersive-clock,
-body.dimmed .weather-immersive-details,
-body.dimmed .weather-routine-bar,
-body.dimmed .time-section,
-body.dimmed .slider-indicators,
-body.dimmed .hud-panel {
-  opacity: 1;
-  filter: none;
-}
+    /* Mantém todo o conteúdo com brilho normal */
+    body.dimmed .weather-immersive-content,
+    body.dimmed .weather-immersive-location,
+    body.dimmed .weather-immersive-clock,
+    body.dimmed .weather-immersive-details,
+    body.dimmed .weather-routine-bar,
+    body.dimmed .time-section,
+    body.dimmed .slider-indicators,
+    body.dimmed .hud-panel {
+      opacity: 1;
+      filter: none;
+    }
 
     .time-section,
     .slider-viewport,
@@ -406,18 +406,18 @@ body.dimmed .hud-panel {
     }
 
     .weather-immersive-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(3, 5, 8, 0.65);
-  backdrop-filter: blur(8px) brightness(1);
-  -webkit-backdrop-filter: blur(8px) brightness(1);
-  z-index: 1;
-  transition:
-    background 1s ease,
-    backdrop-filter 1s ease,
-    -webkit-backdrop-filter 1s ease;
-}
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 5, 8, 0.65);
+      backdrop-filter: blur(8px) brightness(1);
+      -webkit-backdrop-filter: blur(8px) brightness(1);
+      z-index: 1;
+      transition:
+        background 1s ease,
+        backdrop-filter 1s ease,
+        -webkit-backdrop-filter 1s ease;
+    }
 
     .weather-immersive-content {
       position: relative;
@@ -425,6 +425,9 @@ body.dimmed .hud-panel {
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 100%;
+      height: 100%;
+      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .weather-immersive-location {
@@ -438,6 +441,7 @@ body.dimmed .hud-panel {
       align-items: center;
       gap: 10px;
       text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .weather-immersive-clock {
@@ -451,7 +455,7 @@ body.dimmed .hud-panel {
       text-shadow:
         0 0 40px rgba(0, 0, 0, 0.8),
         0 0 80px rgba(56, 189, 248, 0.3);
-      transition: text-shadow 0.5s ease, transform 0.5s ease;
+      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .weather-immersive-details {
@@ -466,6 +470,7 @@ body.dimmed .hud-panel {
       backdrop-filter: blur(16px);
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       margin-bottom: 3vh;
+      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .weather-immersive-temp {
@@ -491,6 +496,7 @@ body.dimmed .hud-panel {
       padding: 12px 28px;
       border-radius: 30px;
       backdrop-filter: blur(12px);
+      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     /* TOASTER DO PLAYER NA TELA DE CLIMA */
@@ -523,20 +529,43 @@ body.dimmed .hud-panel {
     }
 
     .weather-toaster-art {
-      width: 52px;
-      height: 52px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--spotify), var(--secondary));
-      background-size: cover;
-      background-position: center;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 1.2rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  max-width: 52px;
+
+  border-radius: 12px;
+  overflow: hidden;
+
+  background: linear-gradient(
+    135deg,
+    var(--spotify),
+    var(--secondary)
+  );
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #fff;
+  font-size: 1.2rem;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.weather-toaster-art img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: contain;
+  object-position: center;
+
+  border-radius: inherit;
+}
 
     .weather-toaster-info {
       display: flex;
@@ -681,7 +710,7 @@ body.dimmed .hud-panel {
       height: 128px;
       border-radius: 28px;
       background: linear-gradient(135deg, var(--spotify), var(--secondary));
-      background-size: cover;
+      background-size: contain;
       background-position: center;
       background-repeat: no-repeat;
       display: flex;
@@ -1171,28 +1200,110 @@ body.dimmed .hud-panel {
       font-weight: 600;
     }
 
-    .fullscreen-hint {
+    /* ESTILOS DO MENU DE REORDENAÇÃO DA TELA DE CLIMA */
+    .weather-layout-menu {
       position: absolute;
-      bottom: 10px;
+      top: 20px;
       right: 20px;
-      font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.25);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      z-index: 30;
+      z-index: 25;
+      background: rgba(13, 17, 23, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 14px 18px;
+      border-radius: 20px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(-15px);
       pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
+    .weather-layout-menu.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .weather-layout-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .weather-layout-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .weather-layout-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .weather-layout-btn:hover, .weather-layout-btn.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* CLASSES DE FLEXBOX PARA REORDENAÇÃO DOS ELEMENTOS INTERNOS COM ALINHAMENTO NO X */
+    .weather-immersive-content.layout-center {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .weather-immersive-content.layout-center .weather-immersive-location,
+    .weather-immersive-content.layout-center .weather-immersive-clock,
+    .weather-immersive-content.layout-center .weather-immersive-details,
+    .weather-immersive-content.layout-center .weather-routine-bar {
+      align-self: center;
+    }
+
+    .weather-immersive-content.layout-left {
+      justify-content: flex-end;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .weather-immersive-content.layout-left .weather-immersive-location,
+    .weather-immersive-content.layout-left .weather-immersive-clock,
+    .weather-immersive-content.layout-left .weather-immersive-details,
+    .weather-immersive-content.layout-left .weather-routine-bar {
+      align-self: flex-start;
+    }
+
+    .weather-immersive-content.layout-right {
+      justify-content: flex-end;
+      align-items: flex-end;
+      text-align: right;
+    }
+
+    .weather-immersive-content.layout-right .weather-immersive-location,
+    .weather-immersive-content.layout-right .weather-immersive-clock,
+    .weather-immersive-content.layout-right .weather-immersive-details,
+    .weather-immersive-content.layout-right .weather-routine-bar {
+      align-self: flex-end;
     }
 
     @media (max-width: 1024px) {
@@ -1297,7 +1408,26 @@ body.dimmed .hud-panel {
 
       <div class="slide-page">
         <div class="hud-panel weather-immersive-panel" id="weather-immersive-bg">
-          <div class="weather-immersive-content">
+          <!-- MENU DE OPÇÕES DE REORDENAÇÃO -->
+          <div class="weather-layout-menu" id="weather-layout-menu">
+            <div class="weather-layout-title">
+              <i class="fa-solid fa-arrows-split-up-and-left"></i>
+              Reordenar Tela
+            </div>
+            <div class="weather-layout-options">
+              <button class="weather-layout-btn" data-layout="left" id="layout-btn-left">
+                <i class="fa-solid fa-align-left"></i> Esquerda
+              </button>
+              <button class="weather-layout-btn active" data-layout="center" id="layout-btn-center">
+                <i class="fa-solid fa-align-center"></i> Meio
+              </button>
+              <button class="weather-layout-btn" data-layout="right" id="layout-btn-right">
+                <i class="fa-solid fa-align-right"></i> Direita
+              </button>
+            </div>
+          </div>
+
+          <div class="weather-immersive-content layout-center" id="weather-immersive-content">
             <div class="weather-immersive-location">
               <i class="fa-solid fa-location-dot"></i>
               Kuala Lumpur / Hub
@@ -1324,7 +1454,7 @@ body.dimmed .hud-panel {
               <i class="fa-brands fa-spotify"></i>
             </div>
             <div class="weather-toaster-info">
-              <span class="weather-toaster-label">Tocando Agora:</span>
+              <span class="weather-toaster-label" id="weather-toaster-label">Tocando Agora:</span>
               <span class="weather-toaster-title" id="weather-toaster-title">Nome da Música</span>
               <span class="weather-toaster-artist" id="weather-toaster-artist">Artista</span>
             </div>
@@ -1464,14 +1594,15 @@ body.dimmed .hud-panel {
               Iluminação ESP32
             </span>
 
-            <div class="esp32-status">
-              <i class="fa-solid fa-circle" style="font-size: 6px;"></i>
-              UI Local
+            <div class="esp32-status" id="esp32-conn-status">
+              <i class="fa-solid fa-circle" id="esp32-conn-dot" style="font-size: 6px;"></i>
+              <span id="esp32-conn-txt">UI Local</span>
             </div>
           </div>
 
           <div class="esp32-controls-grid">
-            <div class="control-card active" id="card-luz-sala">
+            <!-- Modificado de 'control-card active' para 'control-card' e removido o 'checked' do input -->
+            <div class="control-card" id="card-luz-sala">
               <div class="control-header">
                 <span class="control-title">
                   <i class="fa-solid fa-bolt" style="color: var(--primary);"></i>
@@ -1479,14 +1610,14 @@ body.dimmed .hud-panel {
                 </span>
 
                 <label class="switch" onclick="event.stopPropagation()">
-                  <input type="checkbox" id="switch-luz" checked />
+                  <input type="checkbox" id="switch-luz" />
                   <span class="slider-switch"></span>
                 </label>
               </div>
 
               <div class="control-footer">
                 <span>Pino GPIO 21</span>
-                <span id="status-luz-txt" style="color: var(--primary); font-weight: 600;">Ligado</span>
+                <span id="status-luz-txt" style="color: var(--text-muted); font-weight: 600;">Desligado</span>
               </div>
             </div>
 
@@ -1522,27 +1653,21 @@ body.dimmed .hud-panel {
           </div>
 
           <div class="esp32-controls-grid">
-            <div class="control-card active">
+            <div class="control-card active" id="card-motor-status">
               <div class="control-header">
                 <span class="control-title">
-                  <i class="fa-solid fa-wind" style="color: var(--primary);"></i>
-                  Split Quarto / Hub
+                  <i class="fa-solid fa-gears" style="color: var(--primary);"></i>
+                  Status do Motor
                 </span>
 
-                <label class="switch" onclick="event.stopPropagation()">
-                  <input type="checkbox" id="switch-ac" checked />
-                  <span class="slider-switch"></span>
-                </label>
+                <span id="motor-badge" style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px;">
+                  Desligado
+                </span>
               </div>
 
               <div class="control-footer">
-                <span>Temperatura Alvo</span>
-
-                <div class="temp-adjuster" onclick="event.stopPropagation()">
-                  <button class="temp-btn" id="temp-minus">-</button>
-                  <strong id="ac-temp-val" style="font-size: 1.3rem; color: white; min-width: 55px; text-align: center;">22°C</strong>
-                  <button class="temp-btn" id="temp-plus">+</button>
-                </div>
+                <span>Leitura IP 192.168.0.58</span>
+                <span id="motor-status-txt" style="color: var(--text-muted); font-weight: 600;">Inativo</span>
               </div>
             </div>
 
@@ -1615,18 +1740,18 @@ body.dimmed .hud-panel {
 
     const INACTIVITY_DELAY_MS = 10000;
 
-function resetInactivityTimer() {
-  clearTimeout(inactivityTimer);
-  document.body.classList.remove("dimmed");
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      document.body.classList.remove("dimmed");
 
-  inactivityTimer = setTimeout(() => {
-    goToSlide(0, false);
+      inactivityTimer = setTimeout(() => {
+        goToSlide(0, false);
 
-    requestAnimationFrame(() => {
-      document.body.classList.add("dimmed");
-    });
-  }, INACTIVITY_DELAY_MS);
-}
+        requestAnimationFrame(() => {
+          document.body.classList.add("dimmed");
+        });
+      }, INACTIVITY_DELAY_MS);
+    }
 
     function goToSlide(index, shouldResetTimer = true) {
       currentSlide = Math.max(0, Math.min(2, Number(index || 0)));
@@ -1649,7 +1774,7 @@ function resetInactivityTimer() {
 
       if (shouldResetTimer) {
         resetInactivityTimer();
-        }
+      }
     }
 
     window.goToSlide = goToSlide;
@@ -1662,9 +1787,16 @@ function resetInactivityTimer() {
           safeClosest(e.target, ".slider-indicators") ||
           safeClosest(e.target, ".mirror-modal") ||
           safeClosest(e.target, "button") ||
-          safeClosest(e.target, "input")
+          safeClosest(e.target, "input") ||
+          safeClosest(e.target, ".weather-layout-menu")
         ) {
           return;
+        }
+
+        // Fecha o menu de layout se clicar fora dele
+        const layoutMenu = document.getElementById("weather-layout-menu");
+        if (layoutMenu && !safeClosest(e.target, ".weather-immersive-panel")) {
+          layoutMenu.classList.remove("active");
         }
 
         resetInactivityTimer();
@@ -1721,6 +1853,50 @@ function resetInactivityTimer() {
         isDragging = false;
       });
     }
+
+    // LÓGICA DE SEGURAR O CLIQUE (LONG PRESS) PARA ABRIR O MENU DE REORDENAÇÃO DA TELA DE CLIMA
+    const weatherPanel = document.getElementById("weather-immersive-bg");
+    const weatherLayoutMenu = document.getElementById("weather-layout-menu");
+    const weatherContent = document.getElementById("weather-immersive-content");
+    let holdTimer = null;
+
+    if (weatherPanel && weatherLayoutMenu) {
+      const startHold = (e) => {
+        if (safeClosest(e.target, "button") || safeClosest(e.target, ".weather-layout-menu")) return;
+        
+        holdTimer = setTimeout(() => {
+          weatherLayoutMenu.classList.add("active");
+        }, 600); // Segurar por 600ms abre o menu
+      };
+
+      const cancelHold = () => {
+        clearTimeout(holdTimer);
+      };
+
+      weatherPanel.addEventListener("mousedown", startHold);
+      weatherPanel.addEventListener("touchstart", startHold, { passive: true });
+
+      weatherPanel.addEventListener("mouseup", cancelHold);
+      weatherPanel.addEventListener("mouseleave", cancelHold);
+      weatherPanel.addEventListener("touchend", cancelHold);
+      weatherPanel.addEventListener("touchmove", cancelHold);
+    }
+
+    // BOTÕES DE ESCOLHA DE POSIÇÃO (ESQUERDA, MEIO, DIREITA)
+    document.querySelectorAll(".weather-layout-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const layoutType = btn.getAttribute("data-layout");
+
+        document.querySelectorAll(".weather-layout-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        weatherContent.classList.remove("layout-center", "layout-left", "layout-right");
+        weatherContent.classList.add(`layout-${layoutType}`);
+
+        weatherLayoutMenu.classList.remove("active");
+      });
+    });
 
     function updateClock() {
       const now = new Date();
@@ -1802,6 +1978,120 @@ function resetInactivityTimer() {
         clearTimeout(timeout);
       }
     }
+
+    // Variável de controle para rastrear o estado anterior da conexão com o ESP32
+    let lastEsp32ConnectionState = null;
+
+    // Função auxiliar para disparar o toaster do ESP32 na Tela 1 usando os mesmos elementos do player
+    function showEsp32Toaster(isConnected, detailMessage) {
+      const toaster = document.getElementById("weather-player-toaster");
+      const toasterLabel = document.getElementById("weather-toaster-label");
+      const toasterTitle = document.getElementById("weather-toaster-title");
+      const toasterArtist = document.getElementById("weather-toaster-artist");
+      const toasterArt = document.getElementById("weather-toaster-art");
+
+      if (!toaster || !toasterTitle || !toasterArtist || !toasterArt || !toasterLabel) return;
+
+      toasterLabel.textContent = "Status do ESP32:";
+      toasterTitle.textContent = isConnected ? "Conectado ao IP" : "Erro de Conexão";
+      toasterArtist.textContent = detailMessage;
+
+      if (isConnected) {
+        toasterArt.style.background = "linear-gradient(135deg, var(--success), var(--primary))";
+        toasterArt.innerHTML = '<i class="fa-solid fa-wifi"></i>';
+      } else {
+        toasterArt.style.background = "linear-gradient(135deg, var(--danger), #b91c1c)";
+        toasterArt.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+      }
+
+      toaster.classList.add("active");
+
+      clearTimeout(window.esp32ToasterTimeout);
+      window.esp32ToasterTimeout = setTimeout(() => {
+        toaster.classList.remove("active");
+      }, 5000);
+    }
+
+    // Leitura do ESP32/JSON no IP 192.168.0.58 para atualizar a Tela 3 e notificar via Toaster
+    async function fetchEsp32Status() {
+      const connStatusEl = document.getElementById("esp32-conn-status");
+      const connDotEl = document.getElementById("esp32-conn-dot");
+      const connTxtEl = document.getElementById("esp32-conn-txt");
+      
+      const cardMotor = document.getElementById("card-motor-status");
+      const motorBadge = document.getElementById("motor-badge");
+      const motorTxt = document.getElementById("motor-status-txt");
+
+      try {
+        const data = await fetchWithTimeout("http://192.168.0.58/status", { mode: 'cors' }, 4000);
+        
+        let isConnectedNow = false;
+
+        if (data && typeof data.connected === "boolean") {
+          isConnectedNow = data.connected;
+          if (isConnectedNow) {
+            if (connStatusEl) connStatusEl.style.color = "var(--success)";
+            if (connDotEl) connDotEl.style.backgroundColor = "var(--success)";
+            if (connTxtEl) connTxtEl.textContent = "Conectado";
+          } else {
+            if (connStatusEl) connStatusEl.style.color = "var(--danger)";
+            if (connDotEl) connDotEl.style.backgroundColor = "var(--danger)";
+            if (connTxtEl) connTxtEl.textContent = "Desconectado";
+          }
+        } else {
+          isConnectedNow = true;
+          if (connStatusEl) connStatusEl.style.color = "var(--success)";
+          if (connDotEl) connDotEl.style.backgroundColor = "var(--success)";
+          if (connTxtEl) connTxtEl.textContent = "Conectado";
+        }
+
+        // Dispara toaster se mudou para conectado
+        if (lastEsp32ConnectionState !== true) {
+          showEsp32Toaster(true, "192.168.0.58 online e respondendo");
+        }
+        lastEsp32ConnectionState = true;
+
+        if (data && typeof data.motor === "boolean") {
+          if (data.motor) {
+            if (cardMotor) cardMotor.classList.add("active");
+            if (motorBadge) {
+              motorBadge.textContent = "Ligado";
+              motorBadge.style.color = "var(--primary)";
+              motorBadge.style.background = "rgba(56, 189, 248, 0.1)";
+            }
+            if (motorTxt) {
+              motorTxt.textContent = "Ativo (Rodando)";
+              motorTxt.style.color = "var(--primary)";
+            }
+          } else {
+            if (cardMotor) cardMotor.classList.remove("active");
+            if (motorBadge) {
+              motorBadge.textContent = "Desligado";
+              motorBadge.style.color = "var(--text-muted)";
+              motorBadge.style.background = "rgba(255,255,255,0.05)";
+            }
+            if (motorTxt) {
+              motorTxt.textContent = "Inativo";
+              motorTxt.style.color = "var(--text-muted)";
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Não foi possível conectar ao IP 192.168.0.58:", err.message);
+        if (connTxtEl) connTxtEl.textContent = "Erro de Conexão";
+        if (connStatusEl) connStatusEl.style.color = "var(--danger)";
+        if (connDotEl) connDotEl.style.backgroundColor = "var(--danger)";
+
+        // Dispara toaster se mudou para desconectado/erro
+        if (lastEsp32ConnectionState !== false) {
+          showEsp32Toaster(false, "Perda de sinal com 192.168.0.58");
+        }
+        lastEsp32ConnectionState = false;
+      }
+    }
+
+    setInterval(fetchEsp32Status, 3000);
+    fetchEsp32Status();
 
     async function fetchWeatherData() {
       try {
@@ -1919,13 +2209,14 @@ function resetInactivityTimer() {
     const switchLed = document.getElementById("switch-led");
 
     if (switchLuz) {
-      switchLuz.addEventListener("change", (e) => {
+      switchLuz.addEventListener("change", async (e) => {
         const card = document.getElementById("card-luz-sala");
         const txt = document.getElementById("status-luz-txt");
+        const state = e.target.checked;
 
         if (!card || !txt) return;
 
-        if (e.target.checked) {
+        if (state) {
           card.classList.add("active");
           txt.textContent = "Ligado";
           txt.style.color = "var(--primary)";
@@ -1934,17 +2225,24 @@ function resetInactivityTimer() {
           txt.textContent = "Desligado";
           txt.style.color = "var(--text-muted)";
         }
+
+        try {
+          await fetch(`http://192.168.0.58/luz?state=${state ? 'on' : 'off'}`, { mode: 'cors' });
+        } catch (err) {
+          console.warn("Erro ao enviar comando de luz para o ESP32:", err.message);
+        }
       });
     }
 
     if (switchLed) {
-      switchLed.addEventListener("change", (e) => {
+      switchLed.addEventListener("change", async (e) => {
         const card = document.getElementById("card-luz-led");
         const txt = document.getElementById("status-led-txt");
+        const state = e.target.checked;
 
         if (!card || !txt) return;
 
-        if (e.target.checked) {
+        if (state) {
           card.classList.add("active");
           txt.textContent = "Ligado";
           txt.style.color = "var(--secondary)";
@@ -1953,29 +2251,11 @@ function resetInactivityTimer() {
           txt.textContent = "Desligado";
           txt.style.color = "var(--text-muted)";
         }
-      });
-    }
 
-    let currentTemp = 22;
-
-    const tempValEl = document.getElementById("ac-temp-val");
-    const tempPlusBtn = document.getElementById("temp-plus");
-    const tempMinusBtn = document.getElementById("temp-minus");
-
-    if (tempPlusBtn && tempValEl) {
-      tempPlusBtn.addEventListener("click", () => {
-        if (currentTemp < 30) {
-          currentTemp++;
-          tempValEl.textContent = `${currentTemp}°C`;
-        }
-      });
-    }
-
-    if (tempMinusBtn && tempValEl) {
-      tempMinusBtn.addEventListener("click", () => {
-        if (currentTemp > 16) {
-          currentTemp--;
-          tempValEl.textContent = `${currentTemp}°C`;
+        try {
+          await fetch(`http://192.168.0.58/led?state=${state ? 'on' : 'off'}`, { mode: 'cors' });
+        } catch (err) {
+          console.warn("Erro ao enviar comando de LED para o ESP32:", err.message);
         }
       });
     }
@@ -2374,31 +2654,43 @@ function resetInactivityTimer() {
     let toasterTimeout = null;
 
     function showWeatherPlayerToaster(title, artist, artworkUrl) {
-      const toaster = document.getElementById("weather-player-toaster");
-      const toasterTitle = document.getElementById("weather-toaster-title");
-      const toasterArtist = document.getElementById("weather-toaster-artist");
-      const toasterArt = document.getElementById("weather-toaster-art");
+  const toaster = document.getElementById("weather-player-toaster");
+  const toasterLabel = document.getElementById("weather-toaster-label");
+  const toasterTitle = document.getElementById("weather-toaster-title");
+  const toasterArtist = document.getElementById("weather-toaster-artist");
+  const toasterArt = document.getElementById("weather-toaster-art");
 
-      if (!toaster || !toasterTitle || !toasterArtist || !toasterArt) return;
+  if (!toaster || !toasterTitle || !toasterArtist || !toasterArt || !toasterLabel) {
+    return;
+  }
 
-      toasterTitle.textContent = title;
-      toasterArtist.textContent = artist;
+  toasterLabel.textContent = "Tocando Agora:";
+  toasterTitle.textContent = title;
+  toasterArtist.textContent = artist;
 
-      if (artworkUrl) {
-        toasterArt.style.backgroundImage = `url("${artworkUrl}")`;
-        toasterArt.innerHTML = "";
-      } else {
-        toasterArt.style.backgroundImage = "";
-        toasterArt.innerHTML = '<i class="fa-brands fa-spotify"></i>';
-      }
+  if (artworkUrl) {
+    toasterArt.innerHTML = "";
 
-      toaster.classList.add("active");
+    const img = document.createElement("img");
+    img.src = artworkUrl;
+    img.alt = `Capa de ${title}`;
 
-      clearTimeout(toasterTimeout);
-      toasterTimeout = setTimeout(() => {
-        toaster.classList.remove("active");
-      }, 5000); // Some depois de 5 segundos
-    }
+    toasterArt.appendChild(img);
+
+  } else {
+
+    toasterArt.innerHTML =
+      '<i class="fa-brands fa-spotify"></i>';
+  }
+
+  toaster.classList.add("active");
+
+  clearTimeout(toasterTimeout);
+
+  toasterTimeout = setTimeout(() => {
+    toaster.classList.remove("active");
+  }, 5000);
+}
 
     async function lookupAlbumForCurrentTrack() {
       const title = spotifyPlayerState.title;
