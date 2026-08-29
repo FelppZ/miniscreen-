@@ -55,7 +55,6 @@
       padding: 2vw;
       overflow: hidden;
       user-select: none;
-      transition: background 2s ease;
       position: relative;
     }
 
@@ -72,15 +71,16 @@
       filter: blur(60px);
     }
 
-    /* Modo baixa iluminação: somente o fundo escurece */
+    /* Modo baixa iluminação: somente o fundo escurece (otimizado com will-change) */
     body.dimmed .weather-immersive-panel::before {
       background: rgba(3, 5, 8, 0.65);
       backdrop-filter: blur(8px) brightness(0.45);
       -webkit-backdrop-filter: blur(8px) brightness(0.45);
+      will-change: background, backdrop-filter;
       transition:
-        background 1s ease,
-        backdrop-filter 1s ease,
-        -webkit-backdrop-filter 1s ease;
+        background 0.8s ease,
+        backdrop-filter 0.8s ease,
+        -webkit-backdrop-filter 0.8s ease;
     }
 
     /* Mantém todo o conteúdo com brilho normal */
@@ -99,7 +99,7 @@
     .time-section,
     .slider-viewport,
     .slider-indicators {
-      transition: opacity 0.5s ease, filter 0.5s ease;
+      transition: opacity 0.4s ease;
     }
 
     .time-section {
@@ -116,12 +116,11 @@
       flex-shrink: 0;
       border-radius: 28px;
       border: 1px solid var(--panel-border);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       box-shadow:
         0 20px 50px rgba(0, 0, 0, 0.5),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      transition: all 0.4s ease;
     }
 
     .time-section.hidden {
@@ -147,13 +146,14 @@
 
     .slider-track {
       display: flex;
-      width: 300%;
+      width: 200%;
       height: 100%;
-      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: transform;
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .slide-page {
-      width: 33.333%;
+      width: 50%;
       height: 100%;
       display: grid;
       grid-template-columns: 1fr 1.2fr;
@@ -176,7 +176,7 @@
       height: 10px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
+      transition: width 0.3s ease, background 0.3s ease;
       cursor: pointer;
     }
 
@@ -188,8 +188,8 @@
 
     .hud-panel {
       background: var(--panel-bg);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--panel-border);
       border-radius: 28px;
       padding: 3vh 2.5vw;
@@ -230,7 +230,6 @@
       color: var(--text-muted);
       opacity: 0.2;
       transform: scale(0.85);
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       filter: grayscale(100%);
     }
 
@@ -242,22 +241,22 @@
 
     #icon-morning.active {
       color: #facc15;
-      text-shadow: 0 0 30px rgba(250, 204, 21, 0.6);
+      text-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
     }
 
     #icon-gym.active {
       color: #f87171;
-      text-shadow: 0 0 30px rgba(248, 113, 113, 0.6);
+      text-shadow: 0 0 20px rgba(248, 113, 113, 0.5);
     }
 
     #icon-food.active {
       color: #fb923c;
-      text-shadow: 0 0 30px rgba(251, 146, 60, 0.6);
+      text-shadow: 0 0 20px rgba(251, 146, 60, 0.5);
     }
 
     #icon-bed.active {
       color: #60a5fa;
-      text-shadow: 0 0 30px rgba(96, 165, 250, 0.6);
+      text-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
     }
 
     .date-meta {
@@ -369,7 +368,6 @@
       background: rgba(255, 255, 255, 0.01);
       border-radius: 14px;
       border: 1px solid rgba(255, 255, 255, 0.02);
-      animation: fadeIn 0.6s ease forwards;
     }
 
     .forecast-item span {
@@ -401,7 +399,6 @@
       background-size: cover;
       background-position: center;
       border-color: rgba(255, 255, 255, 0.15);
-      transition: background-image 1.5s ease, background-color 1.5s ease;
       box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.6);
     }
 
@@ -410,13 +407,9 @@
       position: absolute;
       inset: 0;
       background: rgba(3, 5, 8, 0.65);
-      backdrop-filter: blur(8px) brightness(1);
-      -webkit-backdrop-filter: blur(8px) brightness(1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 1;
-      transition:
-        background 1s ease,
-        backdrop-filter 1s ease,
-        -webkit-backdrop-filter 1s ease;
     }
 
     .weather-immersive-content {
@@ -427,7 +420,13 @@
       align-items: center;
       width: 100%;
       height: 100%;
-      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      transition: opacity 0.28s ease, filter 0.28s ease, transform 0.28s ease;
+    }
+
+    .weather-immersive-content.layout-transitioning {
+      opacity: 0;
+      filter: blur(8px);
+      transform: scale(0.97);
     }
 
     .weather-immersive-location {
@@ -441,7 +440,6 @@
       align-items: center;
       gap: 10px;
       text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .weather-immersive-clock {
@@ -453,9 +451,8 @@
       line-height: 1;
       margin-bottom: 2vh;
       text-shadow:
-        0 0 40px rgba(0, 0, 0, 0.8),
-        0 0 80px rgba(56, 189, 248, 0.3);
-      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        0 0 30px rgba(0, 0, 0, 0.8),
+        0 0 60px rgba(56, 189, 248, 0.2);
     }
 
     .weather-immersive-details {
@@ -467,10 +464,9 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       padding: 18px 36px;
       border-radius: 50px;
-      backdrop-filter: blur(16px);
+      backdrop-filter: blur(12px);
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       margin-bottom: 3vh;
-      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     .weather-immersive-temp {
@@ -496,7 +492,6 @@
       padding: 12px 28px;
       border-radius: 30px;
       backdrop-filter: blur(12px);
-      transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     /* TOASTER DO PLAYER NA TELA DE CLIMA */
@@ -519,7 +514,8 @@
       opacity: 0;
       transform: translateY(20px);
       pointer-events: none;
-      transition: opacity 0.4s ease, transform 0.4s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
     }
 
     .weather-player-toaster.active {
@@ -529,43 +525,29 @@
     }
 
     .weather-toaster-art {
-  width: 52px;
-  height: 52px;
-  min-width: 52px;
-  max-width: 52px;
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      max-width: 52px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--spotify), var(--secondary));
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
 
-  border-radius: 12px;
-  overflow: hidden;
-
-  background: linear-gradient(
-    135deg,
-    var(--spotify),
-    var(--secondary)
-  );
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #fff;
-  font-size: 1.2rem;
-
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-
-.weather-toaster-art img {
-  width: 100%;
-  height: 100%;
-
-  display: block;
-
-  object-fit: contain;
-  object-position: center;
-
-  border-radius: inherit;
-}
+    .weather-toaster-art img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      border-radius: inherit;
+    }
 
     .weather-toaster-info {
       display: flex;
@@ -592,6 +574,11 @@
       text-overflow: ellipsis;
     }
 
+    .marquee-seg {
+      display: inline-block;
+      will-change: transform;
+    }
+
     .weather-toaster-artist {
       font-size: 0.8rem;
       color: var(--text-muted);
@@ -604,7 +591,6 @@
       font-size: 1.3rem;
       color: var(--text-muted);
       opacity: 0.3;
-      transition: all 0.5s ease;
       filter: grayscale(100%);
     }
 
@@ -616,22 +602,22 @@
 
     #min-icon-morning.active {
       color: #facc15;
-      text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);
+      text-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
     }
 
     #min-icon-gym.active {
       color: #f87171;
-      text-shadow: 0 0 15px rgba(248, 113, 113, 0.6);
+      text-shadow: 0 0 15px rgba(248, 113, 113, 0.5);
     }
 
     #min-icon-food.active {
       color: #fb923c;
-      text-shadow: 0 0 15px rgba(251, 146, 60, 0.6);
+      text-shadow: 0 0 15px rgba(251, 146, 60, 0.5);
     }
 
     #min-icon-bed.active {
       color: #60a5fa;
-      text-shadow: 0 0 15px rgba(96, 165, 250, 0.6);
+      text-shadow: 0 0 15px rgba(96, 165, 250, 0.5);
     }
 
     .feed-section {
@@ -652,7 +638,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.3s ease;
+      transition: background 0.2s ease, border-color 0.2s ease;
     }
 
     .spotify-open-btn {
@@ -688,7 +674,6 @@
       box-shadow: 0 10px 30px rgba(168, 85, 247, 0.1);
       position: relative;
       overflow: hidden;
-      transition: background 0.5s ease;
     }
 
     .music-info-row,
@@ -697,6 +682,11 @@
     .music-status-row {
       position: relative;
       z-index: 1;
+    }
+
+    .music-player-left,
+    .music-player-right {
+      display: contents;
     }
 
     .music-info-row {
@@ -719,19 +709,18 @@
       font-size: 3rem;
       color: #fff;
       box-shadow:
-        0 18px 50px rgba(29, 185, 84, 0.35),
-        0 0 40px rgba(255, 255, 255, 0.08);
+        0 18px 40px rgba(29, 185, 84, 0.25),
+        0 0 20px rgba(255, 255, 255, 0.05);
       flex-shrink: 0;
-      animation: pulseArt 4s infinite alternate;
       position: relative;
       overflow: hidden;
+      cursor: pointer;
     }
 
     .album-art.has-cover {
       box-shadow:
-        0 22px 60px rgba(0, 0, 0, 0.6),
-        0 0 42px rgba(255, 255, 255, 0.14),
-        0 0 36px rgba(29, 185, 84, 0.25);
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        0 0 25px rgba(255, 255, 255, 0.08);
     }
 
     .album-art.has-cover::after {
@@ -757,26 +746,9 @@
         opacity: 0.35;
         transform: scale(0.92);
       }
-
       to {
         opacity: 1;
         transform: scale(1.08);
-      }
-    }
-
-    @keyframes pulseArt {
-      0% {
-        transform: scale(1);
-        box-shadow:
-          0 18px 50px rgba(29, 185, 84, 0.35),
-          0 0 40px rgba(255, 255, 255, 0.08);
-      }
-
-      100% {
-        transform: scale(1.035);
-        box-shadow:
-          0 22px 60px rgba(56, 189, 248, 0.35),
-          0 0 46px rgba(255, 255, 255, 0.1);
       }
     }
 
@@ -842,12 +814,12 @@
       height: 10px;
       border-radius: 999px;
       background: var(--danger);
-      box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
     }
 
     .media-dot.online {
       background: var(--spotify);
-      box-shadow: 0 0 12px rgba(29, 185, 84, 0.8);
+      box-shadow: 0 0 10px rgba(29, 185, 84, 0.6);
     }
 
     .music-progress-container {
@@ -863,16 +835,6 @@
       border-radius: 999px;
       overflow: hidden;
       position: relative;
-      box-shadow:
-        inset 0 0 8px rgba(255, 255, 255, 0.05),
-        0 0 18px rgba(255, 255, 255, 0.05);
-    }
-
-    .music-progress-bar.synced {
-      box-shadow:
-        0 0 18px rgba(255, 255, 255, 0.18),
-        0 0 34px rgba(255, 255, 255, 0.08),
-        inset 0 0 8px rgba(255, 255, 255, 0.08);
     }
 
     .music-progress-fill {
@@ -885,11 +847,8 @@
         #ffffff,
         rgba(255, 255, 255, 0.88)
       );
-      box-shadow:
-        0 0 12px rgba(255, 255, 255, 0.75),
-        0 0 26px rgba(255, 255, 255, 0.35),
-        0 0 46px rgba(255, 255, 255, 0.12);
-      transition: width 0.12s linear;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      transition: width 0.15s linear;
     }
 
     .music-progress-fill.syncing {
@@ -904,37 +863,21 @@
         #ffffff,
         transparent
       );
-      box-shadow:
-        0 0 18px rgba(255, 255, 255, 0.8),
-        0 0 38px rgba(255, 255, 255, 0.28);
       animation: indeterminateProgress 1.35s ease-in-out infinite;
     }
 
     @keyframes whiteProgressGlow {
       from {
         filter: brightness(1);
-        box-shadow:
-          0 0 10px rgba(255, 255, 255, 0.55),
-          0 0 22px rgba(255, 255, 255, 0.25);
       }
-
       to {
-        filter: brightness(1.22);
-        box-shadow:
-          0 0 16px rgba(255, 255, 255, 0.95),
-          0 0 34px rgba(255, 255, 255, 0.42),
-          0 0 56px rgba(255, 255, 255, 0.16);
+        filter: brightness(1.2);
       }
     }
 
     @keyframes indeterminateProgress {
-      0% {
-        transform: translateX(-110%);
-      }
-
-      100% {
-        transform: translateX(310%);
-      }
+      0% { transform: translateX(-110%); }
+      100% { transform: translateX(310%); }
     }
 
     .music-times {
@@ -959,28 +902,22 @@
       color: rgba(255, 255, 255, 0.68);
       font-size: 1.8rem;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
       width: 64px;
       height: 64px;
       border-radius: 999px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     }
 
     .music-btn:hover {
       color: #ffffff;
-      transform: scale(1.1);
+      transform: scale(1.08);
       background: rgba(255, 255, 255, 0.1);
-      box-shadow:
-        0 10px 28px rgba(0, 0, 0, 0.28),
-        0 0 24px rgba(255, 255, 255, 0.12);
     }
 
-    /* BOTÃO PLAY/PAUSE AUMENTADO */
     .music-btn-play {
       width: 104px;
       height: 104px;
@@ -993,21 +930,12 @@
       justify-content: center;
       font-size: 2.45rem;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow:
-        0 12px 38px rgba(255, 255, 255, 0.32),
-        0 0 42px rgba(255, 255, 255, 0.2),
-        0 0 40px rgba(29, 185, 84, 0.25);
+      transition: transform 0.2s ease, background 0.2s ease;
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.25);
     }
 
     .music-btn-play:hover {
-      transform: scale(1.1);
-      background: #ffffff;
-      color: #030508;
-      box-shadow:
-        0 16px 48px rgba(255, 255, 255, 0.48),
-        0 0 60px rgba(255, 255, 255, 0.28),
-        0 0 50px rgba(29, 185, 84, 0.35);
+      transform: scale(1.08);
     }
 
     .mirror-modal {
@@ -1023,7 +951,7 @@
       z-index: 10;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.3s ease;
     }
 
     .mirror-modal.active {
@@ -1056,12 +984,187 @@
       background: rgba(255, 255, 255, 0.15);
     }
 
+    .fullscreen-player-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(29, 185, 84, 0.14), transparent 55%),
+        var(--bg-base);
+      display: flex;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .fullscreen-player-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .fullscreen-player-back {
+      position: absolute;
+      top: 4vh;
+      left: 4vw;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 14px 26px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+      z-index: 2;
+    }
+
+    .fullscreen-player-back:hover {
+      background: rgba(255, 255, 255, 0.14);
+      transform: translateY(-2px);
+    }
+
+    .fullscreen-player-stage {
+      width: 100%;
+      height: 100%;
+    }
+
+    .fullscreen-player-stage .music-player-card {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      border: none;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 5vw;
+      padding: 4vh 6vw;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .fullscreen-player-stage .music-player-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      max-width: 54%;
+      min-width: 0;
+    }
+
+    .fullscreen-player-stage .music-player-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 26px;
+      width: min(380px, 32vw);
+      flex-shrink: 0;
+    }
+
+    .fullscreen-player-stage .music-info-row {
+      align-items: center;
+      gap: 32px;
+      text-align: left;
+    }
+
+    .fullscreen-player-stage .music-status-row {
+      min-width: 0;
+    }
+
+    .fullscreen-player-stage .album-art {
+      width: min(220px, 22vw, 34vh);
+      height: min(220px, 22vw, 34vh);
+      font-size: 3.6rem;
+      border-radius: 30px;
+    }
+
+    .fullscreen-player-stage .music-details {
+      align-items: flex-start;
+      text-align: left;
+      min-width: 0;
+    }
+
+    .fullscreen-player-stage .music-title {
+      font-size: clamp(1.9rem, 3vw, 2.8rem);
+      text-align: left;
+    }
+
+    .fullscreen-player-stage .music-artist {
+      font-size: clamp(1.1rem, 1.7vw, 1.5rem);
+      text-align: left;
+    }
+
+    .fullscreen-player-stage .music-progress-container {
+      gap: 16px;
+      width: 100%;
+    }
+
+    .fullscreen-player-stage .music-progress-bar {
+      height: 14px;
+    }
+
+    .fullscreen-player-stage .music-times {
+      font-size: 1.05rem;
+    }
+
+    .fullscreen-player-stage .music-controls {
+      gap: 40px;
+    }
+
+    .fullscreen-player-stage .music-btn {
+      width: 68px;
+      height: 68px;
+      font-size: 1.9rem;
+    }
+
+    .fullscreen-player-stage .music-btn-play {
+      width: 88px;
+      height: 88px;
+      font-size: 2.3rem;
+    }
+
     .esp32-controls-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 20px;
       flex-grow: 1;
       align-content: center;
+    }
+
+
+    .hub-ac-controls-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 2.5vh;
+    }
+
+    .control-card-compact {
+      padding: 18px 16px;
+      min-height: 110px;
+    }
+
+    .control-card-compact .control-header {
+      margin-bottom: 10px;
+    }
+
+    .control-card-compact .control-title {
+      font-size: 0.95rem;
+      gap: 8px;
+    }
+
+    .control-card-clickable:hover {
+      border-color: rgba(56, 189, 248, 0.35);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .control-card-clickable:active {
+      transform: scale(0.98);
     }
 
     .control-card {
@@ -1072,7 +1175,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: all 0.3s ease;
+      transition: border-color 0.3s ease, background 0.3s ease;
       cursor: pointer;
       min-height: 155px;
     }
@@ -1155,38 +1258,6 @@
       padding-top: 14px;
     }
 
-    .temp-adjuster {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .temp-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1.25rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .temp-btn:active {
-      transform: scale(0.92);
-    }
-
-    .temp-btn:hover {
-      background: rgba(56, 189, 248, 0.3);
-      border-color: var(--primary);
-    }
-
     .esp32-status {
       font-size: 0.85rem;
       color: var(--success);
@@ -1254,7 +1325,7 @@
       font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -1466,50 +1537,91 @@
         <div class="hud-panel metrics-section">
           <div class="section-header">
             <span>
-              <i class="fa-solid fa-location-crosshairs" style="color: var(--primary);"></i>
-              Kuala Lumpur / Hub
+              <i class="fa-solid fa-microchip" style="color: var(--primary);"></i>
+              Comandos ESP32
             </span>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Tempo Real</span>
+
+            <div class="esp32-status" id="esp32-conn-status">
+              <i class="fa-solid fa-circle" id="esp32-conn-dot" style="font-size: 6px;"></i>
+              <span id="esp32-conn-txt">UI Local</span>
+            </div>
           </div>
 
-          <div class="weather-highlight">
-            <div class="metric-card" title="Condição Atual">
-              <span class="metric-label">
-                <i class="fa-solid fa-temperature-arrow-up" style="color: var(--primary);"></i>
-                Condição Atual
-              </span>
+          <div class="hub-ac-controls-grid">
+            <div class="control-card control-card-compact control-card-clickable" id="card-luz-sala" onclick="document.getElementById('switch-luz').click()">
+              <div class="control-header">
+                <span class="control-title">
+                  <i class="fa-solid fa-bolt" style="color: var(--primary);"></i>
+                  Lâmpada Principal
+                </span>
 
-              <div class="metric-value-container">
-                <span class="temp-main" id="weather-temp">32°C</span>
-                <span class="temp-sub" id="weather-desc">Nublado</span>
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="switch-luz" />
+                  <span class="slider-switch"></span>
+                </label>
+              </div>
+
+              <div class="control-footer">
+                <span>Pino GPIO 21</span>
+                <span id="status-luz-txt" style="color: var(--text-muted); font-weight: 600;">Desligado</span>
               </div>
             </div>
 
-            <div class="metric-card">
-              <span class="metric-label" id="market-title">
-                <i class="fa-solid fa-chart-line" style="color: var(--success);"></i>
-                Cotação Ativa
-              </span>
+            <div class="control-card control-card-compact control-card-clickable" id="card-luz-led" onclick="document.getElementById('switch-led').click()">
+              <div class="control-header">
+                <span class="control-title">
+                  <i class="fa-solid fa-palette" style="color: var(--secondary);"></i>
+                  Fita LED RGB
+                </span>
 
-              <div class="metric-value-container market-rotator" id="market-rotator">
-                <span id="market-name" style="font-size: 0.9rem; color: var(--text-muted);">Bitcoin</span>
-                <span class="market-val" id="market-val" style="color: #f7931a;">$67,420</span>
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="switch-led" />
+                  <span class="slider-switch"></span>
+                </label>
+              </div>
+
+              <div class="control-footer">
+                <span>Pino PWM 22</span>
+                <span id="status-led-txt" style="color: var(--text-muted);">Desligado</span>
+              </div>
+            </div>
+
+            <div class="control-card control-card-compact active" id="card-motor-status" title="Somente leitura — status do hardware">
+              <div class="control-header">
+                <span class="control-title">
+                  <i class="fa-solid fa-snowflake" style="color: var(--primary);"></i>
+                  Ar Condicionado
+                </span>
+
+                <span id="motor-badge" style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px;">
+                  Desligado
+                </span>
+              </div>
+
+              <div class="control-footer">
+                <span>Leitura IP 192.168.100.11</span>
+                <span id="motor-status-txt" style="color: var(--text-muted); font-weight: 600;">Inativo</span>
+              </div>
+            </div>
+
+            <div class="control-card control-card-compact" title="Somente leitura — sensor DHT22">
+              <div class="control-header">
+                <span class="control-title">
+                  <i class="fa-solid fa-gauge-high" style="color: var(--success);"></i>
+                  Ventilação Forçada
+                </span>
+
+                <span style="font-size: 0.9rem; color: var(--success); font-weight: 600; background: rgba(34,197,94,0.1); padding: 4px 10px; border-radius: 8px;">
+                  Modo Auto
+                </span>
+              </div>
+
+              <div class="control-footer">
+                <span>Sensor DHT22</span>
+                <span style="color: white; font-weight: 600; font-size: 1.05rem;">64%</span>
               </div>
             </div>
           </div>
-
-          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2vh 0; background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 20px; margin: auto 0;">
-            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">
-              <i class="fa-regular fa-clock" style="color: var(--primary);"></i>
-              Horário Local
-            </span>
-
-            <div id="central-box-clock" style="font-size: clamp(4rem, 4.5vw, 4.5rem); font-weight: 800; color: #ffffff; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 30px rgba(56, 189, 248, 0.2);">
-              00:00
-            </div>
-          </div>
-
-          <div class="forecast-strip" id="forecast"></div>
         </div>
 
         <div class="hud-panel feed-section">
@@ -1533,49 +1645,53 @@
           </div>
 
           <div class="music-player-card">
-            <div class="music-info-row">
-              <div class="album-art" id="music-art">
-                <i class="fa-brands fa-spotify" id="music-art-icon"></i>
+            <div class="music-player-left">
+              <div class="music-info-row">
+                <div class="album-art" id="music-art">
+                  <i class="fa-brands fa-spotify" id="music-art-icon"></i>
+                </div>
+
+                <div class="music-details">
+                  <div class="music-title" id="music-title-text">Spotify Desktop</div>
+                  <div class="music-artist" id="music-artist-text">Aguardando integração...</div>
+                </div>
               </div>
 
-              <div class="music-details">
-                <div class="music-title" id="music-title-text">Spotify Desktop</div>
-                <div class="music-artist" id="music-artist-text">Aguardando integração...</div>
-              </div>
-            </div>
+              <div class="music-status-row">
+                <span class="media-pill">
+                  <span class="media-dot" id="spotify-dot"></span>
+                  <span id="spotify-status-text">Verificando Spotify...</span>
+                </span>
 
-            <div class="music-status-row">
-              <span class="media-pill">
-                <span class="media-dot" id="spotify-dot"></span>
-                <span id="spotify-status-text">Verificando Spotify...</span>
-              </span>
-
-              <span id="spotify-raw-title">---</span>
-            </div>
-
-            <div class="music-progress-container">
-              <div class="music-progress-bar">
-                <div class="music-progress-fill" id="music-progress-fill"></div>
-              </div>
-
-              <div class="music-times">
-                <span id="music-current-time">Sistema</span>
-                <span id="music-total-time">Teclas globais</span>
+                <span id="spotify-raw-title">---</span>
               </div>
             </div>
 
-            <div class="music-controls">
-              <button class="music-btn" id="music-prev" title="Anterior">
-                <i class="fa-solid fa-backward-step"></i>
-              </button>
+            <div class="music-player-right">
+              <div class="music-progress-container">
+                <div class="music-progress-bar">
+                  <div class="music-progress-fill" id="music-progress-fill"></div>
+                </div>
 
-              <button class="music-btn-play" id="music-play-pause" title="Play/Pause">
-                <i class="fa-solid fa-play" id="play-pause-icon"></i>
-              </button>
+                <div class="music-times">
+                  <span id="music-current-time">Sistema</span>
+                  <span id="music-total-time">Teclas globais</span>
+                </div>
+              </div>
 
-              <button class="music-btn" id="music-next" title="Próxima">
-                <i class="fa-solid fa-forward-step"></i>
-              </button>
+              <div class="music-controls">
+                <button class="music-btn" id="music-prev" title="Anterior">
+                  <i class="fa-solid fa-backward-step"></i>
+                </button>
+
+                <button class="music-btn-play" id="music-play-pause" title="Play/Pause">
+                  <i class="fa-solid fa-play" id="play-pause-icon"></i>
+                </button>
+
+                <button class="music-btn" id="music-next" title="Próxima">
+                  <i class="fa-solid fa-forward-step"></i>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1586,119 +1702,22 @@
         </div>
       </div>
 
-      <div class="slide-page">
-        <div class="hud-panel">
-          <div class="section-header">
-            <span>
-              <i class="fa-solid fa-lightbulb" style="color: #facc15;"></i>
-              Iluminação ESP32
-            </span>
-
-            <div class="esp32-status" id="esp32-conn-status">
-              <i class="fa-solid fa-circle" id="esp32-conn-dot" style="font-size: 6px;"></i>
-              <span id="esp32-conn-txt">UI Local</span>
-            </div>
-          </div>
-
-          <div class="esp32-controls-grid">
-            <!-- Modificado de 'control-card active' para 'control-card' e removido o 'checked' do input -->
-            <div class="control-card" id="card-luz-sala">
-              <div class="control-header">
-                <span class="control-title">
-                  <i class="fa-solid fa-bolt" style="color: var(--primary);"></i>
-                  Lâmpada Principal
-                </span>
-
-                <label class="switch" onclick="event.stopPropagation()">
-                  <input type="checkbox" id="switch-luz" />
-                  <span class="slider-switch"></span>
-                </label>
-              </div>
-
-              <div class="control-footer">
-                <span>Pino GPIO 21</span>
-                <span id="status-luz-txt" style="color: var(--text-muted); font-weight: 600;">Desligado</span>
-              </div>
-            </div>
-
-            <div class="control-card" id="card-luz-led">
-              <div class="control-header">
-                <span class="control-title">
-                  <i class="fa-solid fa-palette" style="color: var(--secondary);"></i>
-                  Fita LED RGB
-                </span>
-
-                <label class="switch" onclick="event.stopPropagation()">
-                  <input type="checkbox" id="switch-led" />
-                  <span class="slider-switch"></span>
-                </label>
-              </div>
-
-              <div class="control-footer">
-                <span>Pino PWM 22</span>
-                <span id="status-led-txt" style="color: var(--text-muted);">Desligado</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="hud-panel">
-          <div class="section-header">
-            <span>
-              <i class="fa-solid fa-snowflake" style="color: var(--primary);"></i>
-              Ar Condicionado ESP32
-            </span>
-
-            <span style="font-size: 0.75rem; color: var(--text-muted);">IR / Modbus</span>
-          </div>
-
-          <div class="esp32-controls-grid">
-            <div class="control-card active" id="card-motor-status">
-              <div class="control-header">
-                <span class="control-title">
-                  <i class="fa-solid fa-gears" style="color: var(--primary);"></i>
-                  Status do Motor
-                </span>
-
-                <span id="motor-badge" style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px;">
-                  Desligado
-                </span>
-              </div>
-
-              <div class="control-footer">
-                <span>Leitura IP 192.168.0.58</span>
-                <span id="motor-status-txt" style="color: var(--text-muted); font-weight: 600;">Inativo</span>
-              </div>
-            </div>
-
-            <div class="control-card">
-              <div class="control-header">
-                <span class="control-title">
-                  <i class="fa-solid fa-gauge-high" style="color: var(--success);"></i>
-                  Ventilação Forçada
-                </span>
-
-                <span style="font-size: 0.9rem; color: var(--success); font-weight: 600; background: rgba(34,197,94,0.1); padding: 4px 10px; border-radius: 8px;">
-                  Modo Auto
-                </span>
-              </div>
-
-              <div class="control-footer">
-                <span>Sensor DHT22</span>
-                <span style="color: white; font-weight: 600; font-size: 1.05rem;">64%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
+
 
   <div class="slider-indicators">
     <div class="indicator-dot active" onclick="goToSlide(0)"></div>
     <div class="indicator-dot" onclick="goToSlide(1)"></div>
-    <div class="indicator-dot" onclick="goToSlide(2)"></div>
+  </div>
+
+  <div class="fullscreen-player-overlay" id="fullscreen-player-overlay">
+    <button class="fullscreen-player-back" id="fullscreen-player-back">
+      <i class="fa-solid fa-house"></i>
+      Voltar para o Início
+    </button>
+
+    <div class="fullscreen-player-stage" id="fullscreen-player-stage"></div>
   </div>
 
   <script>
@@ -1718,23 +1737,100 @@
 
     function setText(id, value) {
       const el = document.getElementById(id);
-
       if (el) {
         el.textContent = value;
       }
     }
 
+    // Rolagem (marquee) automática para títulos que não cabem no espaço disponível.
+    // Comportamento: aguarda 1s parado, rola suavemente até o fim do título,
+    // retorna para a posição original, aguarda 1s e repete o ciclo.
+    function stopMarqueeLoop(el) {
+      if (el._marqueeTimer) {
+        clearTimeout(el._marqueeTimer);
+        el._marqueeTimer = null;
+      }
+      el._marqueeRunId = (el._marqueeRunId || 0) + 1;
+    }
+
+    function startMarqueeLoop(el, seg, distance) {
+      stopMarqueeLoop(el);
+      const runId = el._marqueeRunId;
+      const pxPerSecond = 45;
+      const duration = Math.max(2.5, Math.min(14, distance / pxPerSecond));
+
+      seg.style.transition = "none";
+      seg.style.transform = "translateX(0)";
+
+      const pauseAtStart = () => {
+        if (el._marqueeRunId !== runId) return;
+        el._marqueeTimer = setTimeout(scrollToEnd, 1000);
+      };
+
+      function scrollToEnd() {
+        if (el._marqueeRunId !== runId) return;
+        seg.style.transition = `transform ${duration}s linear`;
+        void seg.offsetWidth;
+        seg.style.transform = `translateX(-${distance}px)`;
+        el._marqueeTimer = setTimeout(scrollToStart, duration * 1000);
+      }
+
+      function scrollToStart() {
+        if (el._marqueeRunId !== runId) return;
+        seg.style.transition = `transform ${duration}s linear`;
+        seg.style.transform = "translateX(0)";
+        el._marqueeTimer = setTimeout(pauseAtStart, duration * 1000);
+      }
+
+      pauseAtStart();
+    }
+
+    function refreshMarquee(el) {
+      if (!el) return;
+      const text = el.dataset.marqueeText;
+      if (text === undefined) return;
+
+      stopMarqueeLoop(el);
+      el.innerHTML = "";
+      el.classList.remove("marquee-active");
+
+      const seg = document.createElement("span");
+      seg.className = "marquee-seg";
+      seg.textContent = text;
+      el.appendChild(seg);
+
+      requestAnimationFrame(() => {
+        if (!el.isConnected || el.dataset.marqueeText !== text) return;
+        const distance = seg.scrollWidth - el.clientWidth;
+        if (distance > 2) {
+          el.classList.add("marquee-active");
+          startMarqueeLoop(el, seg, distance);
+        }
+      });
+    }
+
+    function setMarqueeText(el, value) {
+      if (!el) return;
+      const text = value == null ? "" : String(value);
+      if (el.dataset.marqueeText === text) return;
+      el.dataset.marqueeText = text;
+      refreshMarquee(el);
+    }
+
+    window.addEventListener("resize", () => {
+      refreshMarquee(document.getElementById("weather-toaster-title"));
+      refreshMarquee(document.getElementById("music-title-text"));
+    });
+
     async function requestAppFullscreen() {
       try {
         if (document.fullscreenElement) return;
-
         const el = document.documentElement;
-
         if (el.requestFullscreen) {
           await el.requestFullscreen();
         }
       } catch (error) {
-        console.warn("Fullscreen via HTML bloqueado pelo navegador/Electron:", error.message);
+        console.warn("Fullscreen bloqueado:", error.message);
       }
     }
 
@@ -1746,7 +1842,6 @@
 
       inactivityTimer = setTimeout(() => {
         goToSlide(0, false);
-
         requestAnimationFrame(() => {
           document.body.classList.add("dimmed");
         });
@@ -1754,10 +1849,10 @@
     }
 
     function goToSlide(index, shouldResetTimer = true) {
-      currentSlide = Math.max(0, Math.min(2, Number(index || 0)));
+      currentSlide = Math.max(0, Math.min(1, Number(index || 0)));
 
       if (track) {
-        track.style.transform = `translateX(-${currentSlide * 33.333}%)`;
+        track.style.transform = `translateX(-${currentSlide * 50}%)`;
       }
 
       dots.forEach((dot, idx) => {
@@ -1793,7 +1888,6 @@
           return;
         }
 
-        // Fecha o menu de layout se clicar fora dele
         const layoutMenu = document.getElementById("weather-layout-menu");
         if (layoutMenu && !safeClosest(e.target, ".weather-immersive-panel")) {
           layoutMenu.classList.remove("active");
@@ -1803,31 +1897,22 @@
       }, { passive: true });
     });
 
-    document.addEventListener("fullscreenchange", () => {
-      if (!document.fullscreenElement) {
-        setTimeout(requestAppFullscreen, 500);
-      }
-    });
-
     if (viewport) {
       viewport.addEventListener("touchstart", (e) => {
         if (!e.touches || !e.touches.length) return;
-
         startX = e.touches[0].clientX;
         resetInactivityTimer();
-      });
+      }, { passive: true });
 
       viewport.addEventListener("touchend", (e) => {
         if (!e.changedTouches || !e.changedTouches.length) return;
-
         const diff = startX - e.changedTouches[0].clientX;
-
-        if (diff > 50 && currentSlide < 2) {
+        if (diff > 50 && currentSlide < 1) {
           goToSlide(currentSlide + 1);
         } else if (diff < -50 && currentSlide > 0) {
           goToSlide(currentSlide - 1);
         }
-      });
+      }, { passive: true });
 
       viewport.addEventListener("mousedown", (e) => {
         startX = e.clientX;
@@ -1837,15 +1922,12 @@
 
       viewport.addEventListener("mouseup", (e) => {
         if (!isDragging) return;
-
         const diff = startX - e.clientX;
-
-        if (diff > 80 && currentSlide < 2) {
+        if (diff > 80 && currentSlide < 1) {
           goToSlide(currentSlide + 1);
         } else if (diff < -80 && currentSlide > 0) {
           goToSlide(currentSlide - 1);
         }
-
         isDragging = false;
       });
 
@@ -1854,7 +1936,6 @@
       });
     }
 
-    // LÓGICA DE SEGURAR O CLIQUE (LONG PRESS) PARA ABRIR O MENU DE REORDENAÇÃO DA TELA DE CLIMA
     const weatherPanel = document.getElementById("weather-immersive-bg");
     const weatherLayoutMenu = document.getElementById("weather-layout-menu");
     const weatherContent = document.getElementById("weather-immersive-content");
@@ -1863,10 +1944,9 @@
     if (weatherPanel && weatherLayoutMenu) {
       const startHold = (e) => {
         if (safeClosest(e.target, "button") || safeClosest(e.target, ".weather-layout-menu")) return;
-        
         holdTimer = setTimeout(() => {
           weatherLayoutMenu.classList.add("active");
-        }, 600); // Segurar por 600ms abre o menu
+        }, 600);
       };
 
       const cancelHold = () => {
@@ -1875,24 +1955,36 @@
 
       weatherPanel.addEventListener("mousedown", startHold);
       weatherPanel.addEventListener("touchstart", startHold, { passive: true });
-
       weatherPanel.addEventListener("mouseup", cancelHold);
       weatherPanel.addEventListener("mouseleave", cancelHold);
       weatherPanel.addEventListener("touchend", cancelHold);
-      weatherPanel.addEventListener("touchmove", cancelHold);
+      weatherPanel.addEventListener("touchmove", cancelHold, { passive: true });
     }
 
-    // BOTÕES DE ESCOLHA DE POSIÇÃO (ESQUERDA, MEIO, DIREITA)
     document.querySelectorAll(".weather-layout-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const layoutType = btn.getAttribute("data-layout");
 
+        if (weatherContent.classList.contains(`layout-${layoutType}`)) {
+          weatherLayoutMenu.classList.remove("active");
+          return;
+        }
+
         document.querySelectorAll(".weather-layout-btn").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
 
-        weatherContent.classList.remove("layout-center", "layout-left", "layout-right");
-        weatherContent.classList.add(`layout-${layoutType}`);
+        clearTimeout(weatherContent._layoutTransitionTimeout);
+        weatherContent.classList.add("layout-transitioning");
+
+        weatherContent._layoutTransitionTimeout = setTimeout(() => {
+          weatherContent.classList.remove("layout-center", "layout-left", "layout-right");
+          weatherContent.classList.add(`layout-${layoutType}`);
+
+          requestAnimationFrame(() => {
+            weatherContent.classList.remove("layout-transitioning");
+          });
+        }, 280);
 
         weatherLayoutMenu.classList.remove("active");
       });
@@ -1966,23 +2058,18 @@
           ...options,
           signal: controller.signal
         });
-
         clearTimeout(timeout);
-
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-
         return await response.json();
       } finally {
         clearTimeout(timeout);
       }
     }
 
-    // Variável de controle para rastrear o estado anterior da conexão com o ESP32
     let lastEsp32ConnectionState = null;
 
-    // Função auxiliar para disparar o toaster do ESP32 na Tela 1 usando os mesmos elementos do player
     function showEsp32Toaster(isConnected, detailMessage) {
       const toaster = document.getElementById("weather-player-toaster");
       const toasterLabel = document.getElementById("weather-toaster-label");
@@ -1993,7 +2080,7 @@
       if (!toaster || !toasterTitle || !toasterArtist || !toasterArt || !toasterLabel) return;
 
       toasterLabel.textContent = "Status do ESP32:";
-      toasterTitle.textContent = isConnected ? "Conectado ao IP" : "Erro de Conexão";
+      setMarqueeText(toasterTitle, isConnected ? "Conectado ao IP" : "Erro de Conexão");
       toasterArtist.textContent = detailMessage;
 
       if (isConnected) {
@@ -2005,26 +2092,22 @@
       }
 
       toaster.classList.add("active");
-
       clearTimeout(window.esp32ToasterTimeout);
       window.esp32ToasterTimeout = setTimeout(() => {
         toaster.classList.remove("active");
       }, 5000);
     }
 
-    // Leitura do ESP32/JSON no IP 192.168.0.58 para atualizar a Tela 3 e notificar via Toaster
     async function fetchEsp32Status() {
       const connStatusEl = document.getElementById("esp32-conn-status");
       const connDotEl = document.getElementById("esp32-conn-dot");
       const connTxtEl = document.getElementById("esp32-conn-txt");
-      
       const cardMotor = document.getElementById("card-motor-status");
       const motorBadge = document.getElementById("motor-badge");
       const motorTxt = document.getElementById("motor-status-txt");
 
       try {
-        const data = await fetchWithTimeout("http://192.168.0.58/status", { mode: 'cors' }, 4000);
-        
+        const data = await fetchWithTimeout("http://192.168.100.11/status", { mode: 'cors' }, 4000);
         let isConnectedNow = false;
 
         if (data && typeof data.connected === "boolean") {
@@ -2045,9 +2128,8 @@
           if (connTxtEl) connTxtEl.textContent = "Conectado";
         }
 
-        // Dispara toaster se mudou para conectado
         if (lastEsp32ConnectionState !== true) {
-          showEsp32Toaster(true, "192.168.0.58 online e respondendo");
+          showEsp32Toaster(true, "192.168.100.11 online e respondendo");
         }
         lastEsp32ConnectionState = true;
 
@@ -2077,14 +2159,12 @@
           }
         }
       } catch (err) {
-        console.warn("Não foi possível conectar ao IP 192.168.0.58:", err.message);
         if (connTxtEl) connTxtEl.textContent = "Erro de Conexão";
         if (connStatusEl) connStatusEl.style.color = "var(--danger)";
         if (connDotEl) connDotEl.style.backgroundColor = "var(--danger)";
 
-        // Dispara toaster se mudou para desconectado/erro
         if (lastEsp32ConnectionState !== false) {
-          showEsp32Toaster(false, "Perda de sinal com 192.168.0.58");
+          showEsp32Toaster(false, "Perda de sinal com 192.168.100.11");
         }
         lastEsp32ConnectionState = false;
       }
@@ -2106,7 +2186,7 @@
           const weatherCode = data.current_weather.weathercode;
 
           let desc = "Ensolarado";
-          let bgImage = "https://images.unsplash.com/photo-1622396481328-9b1b78cdd9fd?auto=format&fit=crop&w=1920&q=80";
+          let bgImage = "https://thumbs.dreamstime.com/b/sunny-day-bright-blue-sky-no-clouds-sunny-day-bright-blue-sky-no-clouds-360010345.jpg";
 
           if (weatherCode >= 1 && weatherCode <= 3) {
             desc = "Nublado";
@@ -2122,7 +2202,6 @@
           setText("weather-page-desc", desc);
 
           const weatherBg = document.getElementById("weather-immersive-bg");
-
           if (weatherBg) {
             weatherBg.style.backgroundImage = `url('${bgImage}')`;
           }
@@ -2134,7 +2213,6 @@
 
     function renderForecastPlaceholder() {
       const forecast = document.getElementById("forecast");
-
       if (!forecast) return;
 
       const items = [
@@ -2173,16 +2251,11 @@
 
         try {
           if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error("Webcam não suportada neste ambiente.");
+            throw new Error("Webcam não suportada.");
           }
-
           mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              width: 1280,
-              height: 720
-            }
+            video: { width: 1280, height: 720 }
           });
-
           mirrorVideo.srcObject = mediaStream;
         } catch (err) {
           alert("Erro ao abrir a webcam.");
@@ -2195,15 +2268,53 @@
       closeMirrorBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         mirrorModal.classList.remove("active");
-
         if (mediaStream) {
           mediaStream.getTracks().forEach((trackItem) => trackItem.stop());
           mediaStream = null;
         }
-
         mirrorVideo.srcObject = null;
       });
     }
+
+    // Player em tela cheia: reaproveita o card real do Spotify (mesmos IDs/controles),
+    // apenas movendo-o para o overlay e devolvendo-o ao lugar original ao fechar.
+    const fsPlayerOverlay = document.getElementById("fullscreen-player-overlay");
+    const fsPlayerStage = document.getElementById("fullscreen-player-stage");
+    const fsPlayerBackBtn = document.getElementById("fullscreen-player-back");
+    const musicPlayerCard = document.querySelector(".music-player-card");
+    const musicPlayerHome = musicPlayerCard ? musicPlayerCard.parentElement : null;
+    const musicPlayerAnchor = musicPlayerCard ? musicPlayerCard.nextElementSibling : null;
+
+    function openFullscreenPlayer() {
+      if (!fsPlayerOverlay || !fsPlayerStage || !musicPlayerCard) return;
+      fsPlayerStage.appendChild(musicPlayerCard);
+      fsPlayerOverlay.classList.add("active");
+      requestAnimationFrame(() => refreshMarquee(document.getElementById("music-title-text")));
+    }
+
+    function closeFullscreenPlayer() {
+      if (!fsPlayerOverlay || !musicPlayerCard || !musicPlayerHome) return;
+      fsPlayerOverlay.classList.remove("active");
+      if (musicPlayerAnchor) {
+        musicPlayerHome.insertBefore(musicPlayerCard, musicPlayerAnchor);
+      } else {
+        musicPlayerHome.appendChild(musicPlayerCard);
+      }
+      requestAnimationFrame(() => refreshMarquee(document.getElementById("music-title-text")));
+    }
+
+    document.getElementById("weather-player-toaster")?.addEventListener("click", () => {
+      openFullscreenPlayer();
+    });
+
+    document.getElementById("music-art")?.addEventListener("click", () => {
+      openFullscreenPlayer();
+    });
+
+    fsPlayerBackBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeFullscreenPlayer();
+    });
 
     const switchLuz = document.getElementById("switch-luz");
     const switchLed = document.getElementById("switch-led");
@@ -2227,9 +2338,9 @@
         }
 
         try {
-          await fetch(`http://192.168.0.58/luz?state=${state ? 'on' : 'off'}`, { mode: 'cors' });
+          await fetch(`http://192.168.100.11/luz?state=${state ? 'on' : 'off'}`, { mode: 'cors' });
         } catch (err) {
-          console.warn("Erro ao enviar comando de luz para o ESP32:", err.message);
+          console.warn("Erro ao enviar comando de luz:", err.message);
         }
       });
     }
@@ -2253,9 +2364,9 @@
         }
 
         try {
-          await fetch(`http://192.168.0.58/led?state=${state ? 'on' : 'off'}`, { mode: 'cors' });
+          await fetch(`http://192.168.100.11/led?state=${state ? 'on' : 'off'}`, { mode: 'cors' });
         } catch (err) {
-          console.warn("Erro ao enviar comando de LED para o ESP32:", err.message);
+          console.warn("Erro ao enviar comando de LED:", err.message);
         }
       });
     }
@@ -2330,7 +2441,6 @@
       const ca = normalizeText(candidateArtist);
 
       let score = 0;
-
       if (!qt || !ct) return score;
 
       if (ct === qt) {
@@ -2346,44 +2456,24 @@
           score += 38;
         }
       }
-
-      const titleWords = qt.split(" ").filter((word) => word.length > 2);
-      const artistWords = qa.split(" ").filter((word) => word.length > 2);
-
-      for (const word of titleWords) {
-        if (ct.includes(word)) {
-          score += 4;
-        }
-      }
-
-      for (const word of artistWords) {
-        if (ca.includes(word)) {
-          score += 3;
-        }
-      }
-
       return score;
     }
 
     function upgradeItunesArtwork(url) {
       return String(url || "")
         .replace("100x100bb", "1000x1000bb")
-        .replace("600x600bb", "1000x1000bb")
-        .replace("60x60bb", "1000x1000bb")
-        .replace("30x30bb", "1000x1000bb");
+        .replace("600x600bb", "1000x1000bb");
     }
 
     function preloadImage(url) {
       return new Promise((resolve, reject) => {
         if (!url) {
-          reject(new Error("URL de imagem vazia"));
+          reject(new Error("URL vazia"));
           return;
         }
-
         const image = new Image();
-
         image.onload = () => resolve(url);
-        image.onerror = () => reject(new Error("Falha ao carregar imagem"));
+        image.onerror = () => reject(new Error("Erro ao carregar"));
         image.referrerPolicy = "no-referrer";
         image.src = url;
       });
@@ -2392,10 +2482,9 @@
     async function lookupItunesAlbum(title, artist) {
       const searchTitle = cleanTrackTitle(title);
       const term = encodeURIComponent(`${artist} ${searchTitle}`);
-      const url = `https://itunes.apple.com/search?term=${term}&entity=song&media=music&limit=20`;
+      const url = `https://itunes.apple.com/search?term=${term}&entity=song&media=music&limit=10`;
 
-      const data = await fetchWithTimeout(url, {}, 9000);
-
+      const data = await fetchWithTimeout(url, {}, 7000);
       if (!data || !Array.isArray(data.results) || data.results.length === 0) {
         return null;
       }
@@ -2404,22 +2493,14 @@
       let bestScore = -1;
 
       for (const item of data.results) {
-        const itemScore = scoreCandidate(
-          searchTitle,
-          artist,
-          item.trackName,
-          item.artistName
-        );
-
+        const itemScore = scoreCandidate(searchTitle, artist, item.trackName, item.artistName);
         if (itemScore > bestScore) {
           bestScore = itemScore;
           best = item;
         }
       }
 
-      if (!best || bestScore < 28) {
-        return null;
-      }
+      if (!best || bestScore < 28) return null;
 
       return {
         ok: true,
@@ -2432,77 +2513,23 @@
       };
     }
 
-    async function lookupDeezerAlbum(title, artist) {
-      const searchTitle = cleanTrackTitle(title);
-      const query = encodeURIComponent(`artist:"${artist}" track:"${searchTitle}"`);
-      const url = `https://api.deezer.com/search?q=${query}&limit=15`;
-
-      const data = await fetchWithTimeout(url, {}, 9000);
-
-      if (!data || !Array.isArray(data.data) || data.data.length === 0) {
-        return null;
-      }
-
-      let best = null;
-      let bestScore = -1;
-
-      for (const item of data.data) {
-        const itemScore = scoreCandidate(
-          searchTitle,
-          artist,
-          item.title,
-          item.artist && item.artist.name
-        );
-
-        if (itemScore > bestScore) {
-          bestScore = itemScore;
-          best = item;
-        }
-      }
-
-      if (!best || bestScore < 28) {
-        return null;
-      }
-
-      return {
-        ok: true,
-        source: "Deezer",
-        title: best.title || title,
-        artist: best.artist && best.artist.name ? best.artist.name : artist,
-        album: best.album && best.album.title ? best.album.title : "",
-        artwork: best.album && best.album.cover_xl ? best.album.cover_xl : "",
-        durationMs: Number(best.duration || 0) * 1000
-      };
-    }
-
     async function lookupAlbumByWeb(title, artist) {
       const cacheKey = createTrackKey(title, artist);
-
       if (albumCache.has(cacheKey)) {
         return albumCache.get(cacheKey);
       }
 
       let result = null;
-
       try {
         result = await lookupItunesAlbum(title, artist);
       } catch (error) {
-        console.warn("iTunes não retornou capa:", error.message);
-      }
-
-      if (!result || !result.artwork) {
-        try {
-          result = await lookupDeezerAlbum(title, artist);
-        } catch (error) {
-          console.warn("Deezer não retornou capa:", error.message);
-        }
+        console.warn("iTunes indisponível:", error.message);
       }
 
       if (result && result.artwork) {
         try {
           await preloadImage(result.artwork);
-        } catch (error) {
-          console.warn("Imagem encontrada, mas não carregou:", error.message);
+        } catch (e) {
           result.artwork = "";
         }
       }
@@ -2515,13 +2542,11 @@
           artist,
           album: "",
           artwork: "",
-          durationMs: 0,
-          message: "Capa não encontrada"
+          durationMs: 0
         };
       }
 
       albumCache.set(cacheKey, result);
-
       return result;
     }
 
@@ -2530,7 +2555,6 @@
       const totalSeconds = Math.floor(safeMs / 1000);
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = String(totalSeconds % 60).padStart(2, "0");
-
       return `${minutes}:${seconds}`;
     }
 
@@ -2538,11 +2562,9 @@
       if (!spotifyPlayerState.isPlaying) {
         return spotifyPlayerState.elapsedBeforePauseMs;
       }
-
       if (!spotifyPlayerState.startedAtMs) {
         return spotifyPlayerState.elapsedBeforePauseMs;
       }
-
       return spotifyPlayerState.elapsedBeforePauseMs + (Date.now() - spotifyPlayerState.startedAtMs);
     }
 
@@ -2555,7 +2577,6 @@
         albumArtEl.classList.remove("has-cover", "loading");
         albumArtEl.style.backgroundImage = "";
       }
-
       if (artIcon) {
         artIcon.style.display = "";
       }
@@ -2566,7 +2587,6 @@
         resetAlbumArt();
         return;
       }
-
       spotifyPlayerState.artwork = url;
 
       if (albumArtEl) {
@@ -2574,7 +2594,6 @@
         albumArtEl.classList.remove("loading");
         albumArtEl.style.backgroundImage = `url("${url}")`;
       }
-
       if (artIcon) {
         artIcon.style.display = "none";
       }
@@ -2585,11 +2604,8 @@
 
       if (nextPlaying === spotifyPlayerState.isPlaying) {
         if (playPauseIcon) {
-          playPauseIcon.className = nextPlaying
-            ? "fa-solid fa-pause"
-            : "fa-solid fa-play";
+          playPauseIcon.className = nextPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
         }
-
         return;
       }
 
@@ -2603,27 +2619,21 @@
       spotifyPlayerState.isPlaying = nextPlaying;
 
       if (playPauseIcon) {
-        playPauseIcon.className = spotifyPlayerState.isPlaying
-          ? "fa-solid fa-pause"
-          : "fa-solid fa-play";
+        playPauseIcon.className = spotifyPlayerState.isPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
       }
 
       if (spotifyPlayerState.isPlaying) {
-        artIcon?.classList.add("fa-spin");
         progressFill?.classList.add("syncing");
       } else {
-        artIcon?.classList.remove("fa-spin");
         progressFill?.classList.remove("syncing");
       }
     }
 
     function setSpotifyConnected(isOpen) {
       spotifyPlayerState.isOpen = Boolean(isOpen);
-
       if (spotifyDot) {
         spotifyDot.classList.toggle("online", spotifyPlayerState.isOpen);
       }
-
       if (!spotifyPlayerState.isOpen) {
         progressFill?.classList.remove("syncing");
         progressBar?.classList.remove("indeterminate");
@@ -2635,91 +2645,61 @@
       spotifyPlayerState.startedAtMs = Date.now();
       spotifyPlayerState.elapsedBeforePauseMs = 0;
 
-      if (progressFill) {
-        progressFill.style.width = "0%";
-      }
-
-      if (currentTimeEl) {
-        currentTimeEl.textContent = "0:00";
-      }
-
-      if (totalTimeEl) {
-        totalTimeEl.textContent = "--:--";
-      }
+      if (progressFill) progressFill.style.width = "0%";
+      if (currentTimeEl) currentTimeEl.textContent = "0:00";
+      if (totalTimeEl) totalTimeEl.textContent = "--:--";
 
       progressBar?.classList.remove("synced", "indeterminate");
     }
 
-    // LÓGICA DO TOASTER DE MÚSICA NA TELA DE CLIMA
     let toasterTimeout = null;
 
     function showWeatherPlayerToaster(title, artist, artworkUrl) {
-  const toaster = document.getElementById("weather-player-toaster");
-  const toasterLabel = document.getElementById("weather-toaster-label");
-  const toasterTitle = document.getElementById("weather-toaster-title");
-  const toasterArtist = document.getElementById("weather-toaster-artist");
-  const toasterArt = document.getElementById("weather-toaster-art");
+      const toaster = document.getElementById("weather-player-toaster");
+      const toasterLabel = document.getElementById("weather-toaster-label");
+      const toasterTitle = document.getElementById("weather-toaster-title");
+      const toasterArtist = document.getElementById("weather-toaster-artist");
+      const toasterArt = document.getElementById("weather-toaster-art");
 
-  if (!toaster || !toasterTitle || !toasterArtist || !toasterArt || !toasterLabel) {
-    return;
-  }
+      if (!toaster || !toasterTitle || !toasterArtist || !toasterArt || !toasterLabel) return;
 
-  toasterLabel.textContent = "Tocando Agora:";
-  toasterTitle.textContent = title;
-  toasterArtist.textContent = artist;
+      toasterLabel.textContent = "Tocando Agora:";
+      setMarqueeText(toasterTitle, title);
+      toasterArtist.textContent = artist;
 
-  if (artworkUrl) {
-    toasterArt.innerHTML = "";
+      if (artworkUrl) {
+        toasterArt.innerHTML = "";
+        const img = document.createElement("img");
+        img.src = artworkUrl;
+        img.alt = title;
+        toasterArt.appendChild(img);
+      } else {
+        toasterArt.innerHTML = '<i class="fa-brands fa-spotify"></i>';
+      }
 
-    const img = document.createElement("img");
-    img.src = artworkUrl;
-    img.alt = `Capa de ${title}`;
-
-    toasterArt.appendChild(img);
-
-  } else {
-
-    toasterArt.innerHTML =
-      '<i class="fa-brands fa-spotify"></i>';
-  }
-
-  toaster.classList.add("active");
-
-  clearTimeout(toasterTimeout);
-
-  toasterTimeout = setTimeout(() => {
-    toaster.classList.remove("active");
-  }, 5000);
-}
+      toaster.classList.add("active");
+      clearTimeout(toasterTimeout);
+      toasterTimeout = setTimeout(() => {
+        toaster.classList.remove("active");
+      }, 5000);
+    }
 
     async function lookupAlbumForCurrentTrack() {
       const title = spotifyPlayerState.title;
       const artist = spotifyPlayerState.artist;
       const trackKey = spotifyPlayerState.trackKey;
 
-      if (!title || !artist) {
-        return;
-      }
-
-      if (spotifyPlayerState.lookupRunning || spotifyPlayerState.lastLookupKey === trackKey) {
-        return;
-      }
+      if (!title || !artist) return;
+      if (spotifyPlayerState.lookupRunning || spotifyPlayerState.lastLookupKey === trackKey) return;
 
       spotifyPlayerState.lookupRunning = true;
       spotifyPlayerState.lastLookupKey = trackKey;
 
       try {
-        if (spotifyRawTitle) {
-          spotifyRawTitle.textContent = "Buscando capa na web...";
-        }
-
         albumArtEl?.classList.add("loading");
-
         const result = await lookupAlbumByWeb(title, artist);
 
-        if (spotifyPlayerState.trackKey !== trackKey) {
-          return;
-        }
+        if (spotifyPlayerState.trackKey !== trackKey) return;
 
         if (result && result.ok) {
           spotifyPlayerState.durationMs = Number(result.durationMs || 0);
@@ -2732,59 +2712,24 @@
             resetAlbumArt();
           }
 
-          // Dispara o toaster na tela de clima com os dados atualizados
           showWeatherPlayerToaster(title, artist, result.artwork);
 
           if (spotifyPlayerState.durationMs > 0) {
-            if (totalTimeEl) {
-              totalTimeEl.textContent = formatDuration(spotifyPlayerState.durationMs);
-            }
-
+            if (totalTimeEl) totalTimeEl.textContent = formatDuration(spotifyPlayerState.durationMs);
             progressBar?.classList.add("synced");
-            progressBar?.classList.remove("indeterminate");
-          } else {
-            if (totalTimeEl) {
-              totalTimeEl.textContent = "--:--";
-            }
           }
 
-          const albumInfo = spotifyPlayerState.album
-            ? `${spotifyPlayerState.album} · ${spotifyPlayerState.source}`
-            : spotifyPlayerState.source;
-
           if (spotifyRawTitle) {
-            spotifyRawTitle.textContent = albumInfo || spotifyPlayerState.rawTitle || "Spotify";
+            spotifyRawTitle.textContent = spotifyPlayerState.album || "Spotify";
           }
         } else {
           spotifyPlayerState.durationMs = 0;
           resetAlbumArt();
-
-          // Dispara o toaster mesmo sem capa (fallback)
           showWeatherPlayerToaster(title, artist, "");
-
-          if (totalTimeEl) {
-            totalTimeEl.textContent = "--:--";
-          }
-
-          if (spotifyRawTitle) {
-            spotifyRawTitle.textContent = result && result.message ? result.message : "Capa não encontrada";
-          }
+          if (spotifyRawTitle) spotifyRawTitle.textContent = "Capa não encontrada";
         }
       } catch (error) {
-        spotifyPlayerState.durationMs = 0;
         resetAlbumArt();
-
-        showWeatherPlayerToaster(title, artist, "");
-
-        if (totalTimeEl) {
-          totalTimeEl.textContent = "--:--";
-        }
-
-        if (spotifyRawTitle) {
-          spotifyRawTitle.textContent = "Erro ao buscar capa";
-        }
-
-        console.error("Erro ao buscar capa via web:", error);
       } finally {
         albumArtEl?.classList.remove("loading");
         spotifyPlayerState.lookupRunning = false;
@@ -2798,21 +2743,10 @@
       const nextTrackKey = createTrackKey(nextTitle, nextArtist);
       const isRealTrack = Boolean(status.isPlayingLike && nextTitle && nextArtist);
 
-      if (titleEl) {
-        titleEl.textContent = nextTitle;
-      }
+      if (titleEl) setMarqueeText(titleEl, nextTitle);
+      if (artistEl) artistEl.textContent = nextArtist;
 
-      if (artistEl) {
-        artistEl.textContent = nextArtist;
-      }
-
-      if (!isRealTrack) {
-        if (spotifyRawTitle) {
-          spotifyRawTitle.textContent = nextRawTitle || "Spotify";
-        }
-
-        return;
-      }
+      if (!isRealTrack) return;
 
       const changedTrack = nextTrackKey !== spotifyPlayerState.trackKey;
 
@@ -2823,7 +2757,6 @@
       if (changedTrack) {
         spotifyPlayerState.trackKey = nextTrackKey;
         spotifyPlayerState.lastLookupKey = "";
-
         resetProgressForNewTrack();
         resetAlbumArt();
         lookupAlbumForCurrentTrack();
@@ -2833,22 +2766,13 @@
     async function getSpotifyStatus() {
       try {
         if (!window.electronAPI || typeof window.electronAPI.getMediaStatus !== "function") {
-          if (titleEl) titleEl.textContent = "Electron API indisponível";
-          if (artistEl) artistEl.textContent = "Verifique preload.js e main.js";
-          if (spotifyStatusText) spotifyStatusText.textContent = "IPC não carregado";
-            
           setSpotifyConnected(false);
           setMediaUiPlaying(false);
           return;
         }
 
         const status = await window.electronAPI.getMediaStatus();
-
         if (!status || !status.ok) {
-          if (titleEl) titleEl.textContent = "Erro no Spotify";
-          if (artistEl) artistEl.textContent = status && status.artist ? status.artist : "Falha ao consultar";
-          if (spotifyStatusText) spotifyStatusText.textContent = "Erro";
-
           setSpotifyConnected(false);
           setMediaUiPlaying(false);
           return;
@@ -2857,35 +2781,11 @@
         setSpotifyConnected(status.isOpen);
 
         if (!status.isOpen) {
-          if (titleEl) titleEl.textContent = "Spotify fechado";
-          if (artistEl) titleEl.textContent = "Clique em Abrir Spotify";
-          if (spotifyStatusText) spotifyStatusText.textContent = "Fechado";
-          if (spotifyRawTitle) spotifyRawTitle.textContent = "---";
-
+          if (titleEl) setMarqueeText(titleEl, "Spotify fechado");
+          if (artistEl) artistEl.textContent = "Clique em Abrir Spotify";
           spotifyPlayerState.trackKey = "";
-          spotifyPlayerState.title = "";
-          spotifyPlayerState.artist = "";
-          spotifyPlayerState.durationMs = 0;
-          spotifyPlayerState.elapsedBeforePauseMs = 0;
-          spotifyPlayerState.startedAtMs = 0;
-
           resetAlbumArt();
           setMediaUiPlaying(false);
-
-          if (progressFill) {
-            progressFill.style.width = "0%";
-          }
-
-          if (currentTimeEl) {
-            currentTimeEl.textContent = "Sistema";
-          }
-
-          if (totalTimeEl) {
-            totalTimeEl.textContent = "Aguardando";
-          }
-
-          progressBar?.classList.remove("synced", "indeterminate");
-
           return;
         }
 
@@ -2896,15 +2796,10 @@
         applyTrackStatus(status);
 
         const recentlyToggled = Date.now() - spotifyPlayerState.manualToggleAt < 3500;
-
         if (status.isPlayingLike && !recentlyToggled) {
           setMediaUiPlaying(true);
         }
       } catch (error) {
-        if (titleEl) titleEl.textContent = "Erro de integração";
-        if (artistEl) titleEl.textContent = error.message;
-        if (spotifyStatusText) spotifyStatusText.textContent = "Erro IPC";
-
         setSpotifyConnected(false);
         setMediaUiPlaying(false);
       }
@@ -2913,13 +2808,9 @@
     async function sendMediaCommand(action) {
       try {
         resetInactivityTimer();
+        if (!window.electronAPI || typeof window.electronAPI.mediaControl !== "function") return;
 
-        if (!window.electronAPI || typeof window.electronAPI.mediaControl !== "function") {
-          console.warn("electronAPI.mediaControl indisponível.");
-          return;
-        }
-
-        const result = await window.electronAPI.mediaControl(action);
+        await window.electronAPI.mediaControl(action);
 
         if (action === "toggle" || action === "playpause") {
           spotifyPlayerState.manualToggleAt = Date.now();
@@ -2929,23 +2820,13 @@
         if (action === "next" || action === "previous" || action === "prev") {
           spotifyPlayerState.elapsedBeforePauseMs = 0;
           spotifyPlayerState.startedAtMs = Date.now();
-
-          if (progressFill) {
-            progressFill.style.width = "0%";
-          }
-
-          if (currentTimeEl) {
-            currentTimeEl.textContent = "0:00";
-          }
+          if (progressFill) progressFill.style.width = "0%";
+          if (currentTimeEl) currentTimeEl.textContent = "0:00";
         }
 
-        if (result && result.status) {
-          setTimeout(getSpotifyStatus, 350);
-          setTimeout(getSpotifyStatus, 1000);
-          setTimeout(getSpotifyStatus, 1800);
-        }
+        setTimeout(getSpotifyStatus, 400);
       } catch (err) {
-        console.error(`Erro ao enviar comando de mídia (${action}):`, err);
+        console.error("Erro ao enviar comando de mídia:", err);
       }
     }
 
@@ -2956,18 +2837,15 @@
       });
     }
 
-    const nextBtn = document.getElementById("music-next");
-    const prevBtn = document.getElementById("music-prev");
-
-    if (nextBtn) {
-      nextBtn.addEventListener("click", (e) => {
+    if (document.getElementById("music-next")) {
+      document.getElementById("music-next").addEventListener("click", (e) => {
         e.stopPropagation();
         sendMediaCommand("next");
       });
     }
 
-    if (prevBtn) {
-      prevBtn.addEventListener("click", (e) => {
+    if (document.getElementById("music-prev")) {
+      document.getElementById("music-prev").addEventListener("click", (e) => {
         e.stopPropagation();
         sendMediaCommand("previous");
       });
@@ -2976,73 +2854,38 @@
     if (openSpotifyBtn) {
       openSpotifyBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
-
         if (window.electronAPI && typeof window.electronAPI.openSpotify === "function") {
           await window.electronAPI.openSpotify();
-          setTimeout(getSpotifyStatus, 1000);
-          setTimeout(getSpotifyStatus, 2500);
+          setTimeout(getSpotifyStatus, 1200);
         }
       });
     }
 
-    function animateMusicProgress() {
-      if (!spotifyPlayerState.isOpen) {
-        if (progressFill) {
-          progressFill.style.width = "0%";
-        }
+    // Otimização do loop de animação do player via setInterval leve ou rAF eficiente
+    let lastProgressTick = 0;
+    function animateMusicProgress(timestamp) {
+      if (timestamp - lastProgressTick > 120) { // Throttle para ~8fps na barra de progresso economizando CPU
+        lastProgressTick = timestamp;
 
-        requestAnimationFrame(animateMusicProgress);
-        return;
-      }
+        if (spotifyPlayerState.isOpen) {
+          const durationMs = Number(spotifyPlayerState.durationMs || 0);
+          const elapsedMs = getCurrentElapsedMs();
 
-      const durationMs = Number(spotifyPlayerState.durationMs || 0);
-      const elapsedMs = getCurrentElapsedMs();
+          if (durationMs > 0) {
+            const safeElapsed = Math.min(elapsedMs, durationMs);
+            const percent = Math.max(0, Math.min(100, (safeElapsed / durationMs) * 100));
 
-      if (durationMs > 0) {
-        const safeElapsed = Math.min(elapsedMs, durationMs);
-        const percent = Math.max(0, Math.min(100, (safeElapsed / durationMs) * 100));
-
-        progressBar?.classList.remove("indeterminate");
-
-        if (progressFill) {
-          progressFill.style.width = `${percent}%`;
-        }
-
-        if (currentTimeEl) {
-          currentTimeEl.textContent = formatDuration(safeElapsed);
-        }
-
-        if (totalTimeEl) {
-          totalTimeEl.textContent = formatDuration(durationMs);
-        }
-      } else if (spotifyPlayerState.isPlaying) {
-        progressBar?.classList.add("indeterminate");
-
-        if (currentTimeEl) {
-          currentTimeEl.textContent = "Tocando";
-        }
-
-        if (totalTimeEl) {
-          totalTimeEl.textContent = "Buscando duração";
-        }
-      } else {
-        progressBar?.classList.remove("indeterminate");
-
-        if (currentTimeEl) {
-          currentTimeEl.textContent = "Pausado";
-        }
-
-        if (totalTimeEl) {
-          totalTimeEl.textContent = durationMs > 0 ? formatDuration(durationMs) : "--:--";
+            if (progressFill) progressFill.style.width = `${percent}%`;
+            if (currentTimeEl) currentTimeEl.textContent = formatDuration(safeElapsed);
+          }
         }
       }
-
       requestAnimationFrame(animateMusicProgress);
     }
 
-    setInterval(getSpotifyStatus, 2500);
+    setInterval(getSpotifyStatus, 3000);
     getSpotifyStatus();
-    animateMusicProgress();
+    requestAnimationFrame(animateMusicProgress);
 
     requestAppFullscreen();
     resetInactivityTimer();
