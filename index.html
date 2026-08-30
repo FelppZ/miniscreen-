@@ -410,6 +410,11 @@
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       z-index: 1;
+      will-change: background, backdrop-filter;
+      transition:
+        background 0.8s ease,
+        backdrop-filter 0.8s ease,
+        -webkit-backdrop-filter 0.8s ease;
     }
 
     .weather-immersive-content {
@@ -467,6 +472,13 @@
       backdrop-filter: blur(12px);
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       margin-bottom: 3vh;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .weather-immersive-details:hover {
+      background: rgba(13, 17, 23, 0.9);
+      transform: translateY(-2px);
     }
 
     .weather-immersive-temp {
@@ -995,7 +1007,7 @@
       opacity: 0;
       pointer-events: none;
       transform: scale(0.97);
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.6s ease;
     }
 
     .fullscreen-player-overlay.active {
@@ -1026,6 +1038,304 @@
     .fullscreen-player-back:hover {
       background: rgba(255, 255, 255, 0.14);
       transform: translateY(-2px);
+    }
+
+    .fullscreen-log-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(56, 189, 248, 0.14), transparent 55%),
+        var(--bg-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4vh 6vw;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .fullscreen-log-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .fullscreen-log-stage {
+      width: 100%;
+      max-width: 900px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 3vh;
+      padding-top: 9vh;
+      padding-bottom: 2vh;
+      box-sizing: border-box;
+    }
+
+    .fullscreen-log-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: clamp(1.3rem, 2.2vw, 1.9rem);
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .fullscreen-log-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-right: 10px;
+      min-width: 0;
+
+      /* Barra de rolagem minimalista, combinando com o resto do app */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+    }
+
+    .fullscreen-log-list::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .fullscreen-log-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .fullscreen-log-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+    }
+
+    .fullscreen-log-list::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .log-entry {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 16px 20px;
+      flex-shrink: 0;
+    }
+
+    .log-entry-icon {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: #fff;
+    }
+
+    .log-entry-icon.online {
+      background: linear-gradient(135deg, var(--success), var(--primary));
+    }
+
+    .log-entry-icon.offline {
+      background: linear-gradient(135deg, var(--danger), #b91c1c);
+    }
+
+    .log-entry-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .log-entry-status {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .log-entry-detail {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .log-entry-time {
+      margin-left: auto;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+      text-align: right;
+      padding-left: 12px;
+    }
+
+    .fullscreen-log-empty {
+      color: var(--text-muted);
+      text-align: center;
+      padding: 40px 0;
+      font-size: 1rem;
+    }
+
+    .fullscreen-weather-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(56, 189, 248, 0.16), transparent 55%),
+        var(--bg-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4vh 6vw;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .fullscreen-weather-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .fullscreen-weather-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .fs-weather-anchor {
+      position: absolute;
+      top: 50%;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      max-width: 42vw;
+    }
+
+    .fs-weather-left {
+      left: 27%;
+      align-items: flex-start;
+      text-align: left;
+      opacity: 0;
+      transform: translate(calc(-50% - 26px), -50%);
+      transition:
+        opacity 0.9s ease,
+        transform 1.15s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    .fs-weather-right {
+      left: 50%;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      transform: translate(-50%, -50%);
+      transition: left 1.15s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    .fullscreen-weather-stage.weather-layout-expanded .fs-weather-left {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+
+    .fullscreen-weather-stage.weather-layout-expanded .fs-weather-right {
+      left: 72%;
+    }
+
+    .fullscreen-weather-location {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .fullscreen-weather-icon {
+      font-size: clamp(3.5rem, 7vw, 5.5rem);
+      color: var(--primary);
+      margin-bottom: 10px;
+      transition: font-size 1.15s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    .fullscreen-weather-temp {
+      font-size: clamp(3.5rem, 8vw, 6rem);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1;
+      transition: font-size 1.15s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    .fullscreen-weather-desc {
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .weather-layout-expanded .fullscreen-weather-icon {
+      font-size: clamp(4.5rem, 9vw, 7rem);
+    }
+
+    .weather-layout-expanded .fullscreen-weather-temp {
+      font-size: clamp(5rem, 11vw, 9rem);
+    }
+
+    .fullscreen-weather-details {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .fs-weather-detail-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 16px 22px;
+    }
+
+    .fs-weather-detail-item i {
+      font-size: 1.3rem;
+      color: var(--primary);
+    }
+
+    .fs-weather-detail-value {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .fs-weather-detail-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .fullscreen-weather-forecast {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .fullscreen-player-stage {
@@ -1506,7 +1816,7 @@
 
             <div class="weather-immersive-clock" id="weather-page-clock">00:00:00</div>
 
-            <div class="weather-immersive-details">
+            <div class="weather-immersive-details" id="weather-widget-trigger">
               <span class="weather-immersive-temp" id="weather-page-temp">32°C</span>
               <span class="weather-immersive-desc" id="weather-page-desc">Nublado</span>
             </div>
@@ -1718,6 +2028,60 @@
     </button>
 
     <div class="fullscreen-player-stage" id="fullscreen-player-stage"></div>
+  </div>
+
+  <div class="fullscreen-log-overlay" id="fullscreen-log-overlay">
+    <button class="fullscreen-player-back" id="fullscreen-log-back">
+      <i class="fa-solid fa-house"></i>
+      Voltar para o Início
+    </button>
+
+    <div class="fullscreen-log-stage">
+      <div class="fullscreen-log-header">
+        <i class="fa-solid fa-satellite-dish" style="color: var(--primary);"></i>
+        <span>Histórico de Conexão ESP32</span>
+      </div>
+
+      <div class="fullscreen-log-list" id="esp32-log-list"></div>
+    </div>
+  </div>
+
+  <div class="fullscreen-weather-overlay" id="fullscreen-weather-overlay">
+    <button class="fullscreen-player-back" id="fullscreen-weather-back">
+      <i class="fa-solid fa-house"></i>
+      Voltar para o Início
+    </button>
+
+    <div class="fullscreen-weather-stage" id="fs-weather-stage">
+      <div class="fs-weather-anchor fs-weather-left" id="fs-weather-left">
+        <div class="fullscreen-weather-location" id="fs-weather-location">
+          <i class="fa-solid fa-location-dot"></i>
+          Kuala Lumpur
+        </div>
+
+        <div class="fullscreen-weather-details" id="fs-weather-details">
+          <div class="fs-weather-detail-item">
+            <i class="fa-solid fa-wind"></i>
+            <span class="fs-weather-detail-value" id="fs-weather-wind">-- km/h</span>
+            <span class="fs-weather-detail-label">Vento</span>
+          </div>
+
+          <div class="fs-weather-detail-item">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span class="fs-weather-detail-value" id="fs-weather-updated">--:--</span>
+            <span class="fs-weather-detail-label">Atualizado</span>
+          </div>
+        </div>
+
+        <div class="fullscreen-weather-forecast" id="fs-weather-forecast"></div>
+      </div>
+
+      <div class="fs-weather-anchor fs-weather-right" id="fs-weather-right">
+        <i class="fa-solid fa-cloud-sun fullscreen-weather-icon" id="fs-weather-icon"></i>
+        <div class="fullscreen-weather-temp" id="fs-weather-temp">32°C</div>
+        <div class="fullscreen-weather-desc" id="fs-weather-desc">Nublado</div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1940,11 +2304,14 @@
     const weatherLayoutMenu = document.getElementById("weather-layout-menu");
     const weatherContent = document.getElementById("weather-immersive-content");
     let holdTimer = null;
+    let weatherHoldTriggered = false;
 
     if (weatherPanel && weatherLayoutMenu) {
       const startHold = (e) => {
         if (safeClosest(e.target, "button") || safeClosest(e.target, ".weather-layout-menu")) return;
+        weatherHoldTriggered = false;
         holdTimer = setTimeout(() => {
+          weatherHoldTriggered = true;
           weatherLayoutMenu.classList.add("active");
         }, 600);
       };
@@ -1960,6 +2327,58 @@
       weatherPanel.addEventListener("touchend", cancelHold);
       weatherPanel.addEventListener("touchmove", cancelHold, { passive: true });
     }
+
+    // Tela oculta com os detalhes do clima, aberta ao clicar no widget da tela 1.
+    const fsWeatherOverlay = document.getElementById("fullscreen-weather-overlay");
+    const fsWeatherBackBtn = document.getElementById("fullscreen-weather-back");
+
+    let weatherIntroTimer = null;
+    let weatherInactivityTimer = null;
+    const WEATHER_INACTIVITY_MS = 60000;
+
+    function resetWeatherInactivityTimer() {
+      clearTimeout(weatherInactivityTimer);
+      weatherInactivityTimer = setTimeout(() => {
+        closeWeatherDetailScreen();
+      }, WEATHER_INACTIVITY_MS);
+    }
+
+    function openWeatherDetailScreen() {
+      if (!fsWeatherOverlay) return;
+      const stage = document.getElementById("fs-weather-stage");
+      stage?.classList.remove("weather-layout-expanded");
+
+      clearTimeout(weatherIntroTimer);
+      weatherIntroTimer = setTimeout(() => {
+        stage?.classList.add("weather-layout-expanded");
+      }, 2000);
+
+      fsWeatherOverlay.classList.add("active");
+      resetWeatherInactivityTimer();
+    }
+
+    function closeWeatherDetailScreen() {
+      if (!fsWeatherOverlay) return;
+      fsWeatherOverlay.classList.remove("active");
+      clearTimeout(weatherIntroTimer);
+      clearTimeout(weatherInactivityTimer);
+    }
+
+    fsWeatherOverlay?.addEventListener("click", resetWeatherInactivityTimer);
+    fsWeatherOverlay?.addEventListener("touchstart", resetWeatherInactivityTimer, { passive: true });
+
+    fsWeatherBackBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeWeatherDetailScreen();
+    });
+
+    document.getElementById("weather-widget-trigger")?.addEventListener("click", () => {
+      if (weatherHoldTriggered) {
+        weatherHoldTriggered = false;
+        return;
+      }
+      openWeatherDetailScreen();
+    });
 
     document.querySelectorAll(".weather-layout-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -2070,6 +2489,98 @@
 
     let lastEsp32ConnectionState = null;
 
+    // Log de conexão do ESP32, persistido em localStorage.
+    const ESP32_LOG_KEY = "esp32ConnectionLog";
+    const ESP32_LOG_MAX_ENTRIES = 200;
+
+    function loadEsp32Log() {
+      try {
+        const raw = localStorage.getItem(ESP32_LOG_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveEsp32Log(entries) {
+      try {
+        localStorage.setItem(ESP32_LOG_KEY, JSON.stringify(entries));
+      } catch (error) {
+        // localStorage indisponível ou cheio — ignora silenciosamente
+      }
+    }
+
+    function addEsp32LogEntry(isConnected, detailMessage) {
+      const entries = loadEsp32Log();
+      entries.push({
+        timestamp: Date.now(),
+        isConnected: Boolean(isConnected),
+        detail: detailMessage || ""
+      });
+      if (entries.length > ESP32_LOG_MAX_ENTRIES) {
+        entries.splice(0, entries.length - ESP32_LOG_MAX_ENTRIES);
+      }
+      saveEsp32Log(entries);
+
+      // Se a tela de log estiver aberta no momento, atualiza a lista na hora,
+      // sem precisar sair e entrar de novo.
+      const logOverlay = document.getElementById("fullscreen-log-overlay");
+      if (logOverlay && logOverlay.classList.contains("active")) {
+        renderEsp32Log();
+      }
+    }
+
+    function formatLogTimestamp(ts) {
+      try {
+        return new Date(ts).toLocaleString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit"
+        });
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function escapeHtml(value) {
+      const div = document.createElement("div");
+      div.textContent = value == null ? "" : String(value);
+      return div.innerHTML;
+    }
+
+    function renderEsp32Log() {
+      const listEl = document.getElementById("esp32-log-list");
+      if (!listEl) return;
+
+      const entries = loadEsp32Log().slice().reverse();
+
+      if (entries.length === 0) {
+        listEl.innerHTML = '<div class="fullscreen-log-empty">Nenhum registro de conexão ainda.</div>';
+        return;
+      }
+
+      listEl.innerHTML = entries.map((entry) => {
+        const statusClass = entry.isConnected ? "online" : "offline";
+        const icon = entry.isConnected ? "fa-wifi" : "fa-triangle-exclamation";
+        const statusLabel = entry.isConnected ? "Conectado" : "Desconectado";
+
+        return `
+          <div class="log-entry">
+            <div class="log-entry-icon ${statusClass}"><i class="fa-solid ${icon}"></i></div>
+            <div class="log-entry-info">
+              <span class="log-entry-status">${statusLabel}</span>
+              <span class="log-entry-detail">${escapeHtml(entry.detail)}</span>
+            </div>
+            <span class="log-entry-time">${escapeHtml(formatLogTimestamp(entry.timestamp))}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
     function showEsp32Toaster(isConnected, detailMessage) {
       const toaster = document.getElementById("weather-player-toaster");
       const toasterLabel = document.getElementById("weather-toaster-label");
@@ -2079,7 +2590,10 @@
 
       if (!toaster || !toasterTitle || !toasterArtist || !toasterArt || !toasterLabel) return;
 
+      addEsp32LogEntry(isConnected, detailMessage);
+
       toasterLabel.textContent = "Status do ESP32:";
+      toaster.dataset.toasterType = "esp32";
       setMarqueeText(toasterTitle, isConnected ? "Conectado ao IP" : "Erro de Conexão");
       toasterArtist.textContent = detailMessage;
 
@@ -2184,15 +2698,19 @@
         if (data && data.current_weather) {
           const temp = Math.round(data.current_weather.temperature);
           const weatherCode = data.current_weather.weathercode;
+          const windSpeed = data.current_weather.windspeed;
 
           let desc = "Ensolarado";
+          let icon = "fa-sun";
           let bgImage = "https://thumbs.dreamstime.com/b/sunny-day-bright-blue-sky-no-clouds-sunny-day-bright-blue-sky-no-clouds-360010345.jpg";
 
           if (weatherCode >= 1 && weatherCode <= 3) {
             desc = "Nublado";
+            icon = "fa-cloud-sun";
             bgImage = "https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=1920&q=80";
           } else if (weatherCode >= 51 && weatherCode <= 67) {
             desc = "Chuvoso";
+            icon = "fa-cloud-showers-heavy";
             bgImage = "https://images.unsplash.com/photo-1519692933481-e162a57d6721?auto=format&fit=crop&w=1920&q=80";
           }
 
@@ -2200,6 +2718,18 @@
           setText("weather-desc", desc);
           setText("weather-page-temp", `${temp}°C`);
           setText("weather-page-desc", desc);
+
+          setText("fs-weather-temp", `${temp}°C`);
+          setText("fs-weather-desc", desc);
+          if (typeof windSpeed === "number") {
+            setText("fs-weather-wind", `${Math.round(windSpeed)} km/h`);
+          }
+          setText("fs-weather-updated", new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }));
+
+          const fsIcon = document.getElementById("fs-weather-icon");
+          if (fsIcon) {
+            fsIcon.className = `fa-solid ${icon} fullscreen-weather-icon`;
+          }
 
           const weatherBg = document.getElementById("weather-immersive-bg");
           if (weatherBg) {
@@ -2212,7 +2742,7 @@
     }
 
     function renderForecastPlaceholder() {
-      const forecast = document.getElementById("forecast");
+      const forecast = document.getElementById("fs-weather-forecast");
       if (!forecast) return;
 
       const items = [
@@ -2303,17 +2833,44 @@
       requestAnimationFrame(() => refreshMarquee(document.getElementById("music-title-text")));
     }
 
-    document.getElementById("weather-player-toaster")?.addEventListener("click", () => {
-      openFullscreenPlayer();
+    fsPlayerBackBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeFullscreenPlayer();
+    });
+
+    // Tela oculta com o histórico (log) de conexão do ESP32.
+    const esp32LogOverlay = document.getElementById("fullscreen-log-overlay");
+    const esp32LogBackBtn = document.getElementById("fullscreen-log-back");
+
+    function openEsp32LogScreen() {
+      if (!esp32LogOverlay) return;
+      renderEsp32Log();
+      esp32LogOverlay.classList.add("active");
+    }
+
+    function closeEsp32LogScreen() {
+      if (!esp32LogOverlay) return;
+      esp32LogOverlay.classList.remove("active");
+    }
+
+    esp32LogBackBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeEsp32LogScreen();
+    });
+
+    // O toaster é compartilhado entre Spotify e status do ESP32 — cada clique é
+    // roteado conforme o tipo (data-toaster-type) exibido no momento.
+    document.getElementById("weather-player-toaster")?.addEventListener("click", (e) => {
+      const toasterType = e.currentTarget.dataset.toasterType;
+      if (toasterType === "esp32") {
+        openEsp32LogScreen();
+      } else {
+        openFullscreenPlayer();
+      }
     });
 
     document.getElementById("music-art")?.addEventListener("click", () => {
       openFullscreenPlayer();
-    });
-
-    fsPlayerBackBtn?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      closeFullscreenPlayer();
     });
 
     const switchLuz = document.getElementById("switch-luz");
@@ -2568,6 +3125,68 @@
       return spotifyPlayerState.elapsedBeforePauseMs + (Date.now() - spotifyPlayerState.startedAtMs);
     }
 
+    // Fundo dinâmico do player em tela cheia, extraído da cor dominante da capa.
+    function extractDominantColor(imgEl) {
+      try {
+        const size = 32;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(imgEl, 0, 0, size, size);
+        const data = ctx.getImageData(0, 0, size, size).data;
+
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] < 125) continue;
+          const rr = data[i], gg = data[i + 1], bb = data[i + 2];
+          const max = Math.max(rr, gg, bb);
+          const min = Math.min(rr, gg, bb);
+          if (max > 245 && min > 245) continue; // ignora quase-branco
+          if (max < 15) continue; // ignora quase-preto
+          r += rr;
+          g += gg;
+          b += bb;
+          count += 1;
+        }
+
+        if (count === 0) return null;
+        return {
+          r: Math.round(r / count),
+          g: Math.round(g / count),
+          b: Math.round(b / count)
+        };
+      } catch (error) {
+        return null; // provavelmente a imagem bloqueou leitura de pixels (CORS)
+      }
+    }
+
+    function applyPlayerDynamicBackground(color) {
+      if (!fsPlayerOverlay) return;
+      if (!color) {
+        fsPlayerOverlay.style.background = "";
+        return;
+      }
+      const { r, g, b } = color;
+      fsPlayerOverlay.style.background = `
+        radial-gradient(circle at 20% 25%, rgba(${r}, ${g}, ${b}, 0.55), transparent 60%),
+        radial-gradient(circle at 82% 78%, rgba(${r}, ${g}, ${b}, 0.28), transparent 65%),
+        var(--bg-base)
+      `;
+    }
+
+    function updatePlayerDynamicBackgroundFromArt(url) {
+      if (!url) {
+        applyPlayerDynamicBackground(null);
+        return;
+      }
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => applyPlayerDynamicBackground(extractDominantColor(img));
+      img.onerror = () => applyPlayerDynamicBackground(null);
+      img.src = url;
+    }
+
     function resetAlbumArt() {
       spotifyPlayerState.artwork = "";
       spotifyPlayerState.album = "";
@@ -2580,6 +3199,7 @@
       if (artIcon) {
         artIcon.style.display = "";
       }
+      applyPlayerDynamicBackground(null);
     }
 
     function setAlbumArt(url) {
@@ -2597,6 +3217,7 @@
       if (artIcon) {
         artIcon.style.display = "none";
       }
+      updatePlayerDynamicBackgroundFromArt(url);
     }
 
     function setMediaUiPlaying(playing) {
@@ -2664,6 +3285,7 @@
       if (!toaster || !toasterTitle || !toasterArtist || !toasterArt || !toasterLabel) return;
 
       toasterLabel.textContent = "Tocando Agora:";
+      toaster.dataset.toasterType = "spotify";
       setMarqueeText(toasterTitle, title);
       toasterArtist.textContent = artist;
 
